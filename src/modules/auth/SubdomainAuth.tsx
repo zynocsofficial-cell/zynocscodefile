@@ -194,8 +194,18 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
 
   const current = subdomains[activeSubdomain];
 
+  const getDisplayUrl = (subId: SubdomainId) => {
+    if (typeof window !== 'undefined' && window.location.hostname.includes('localhost')) {
+      const port = window.location.port ? `:${window.location.port}` : '';
+      return subId === 'main' ? `localhost${port}` : `${subId}.localhost${port}`;
+    }
+    return subId === 'main' ? 'zynocs.com' : `${subId}.zynocs.com`;
+  };
+
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(`https://${current.subdomain}/auth`);
+    const domain = getDisplayUrl(activeSubdomain);
+    const protocol = typeof window !== 'undefined' && window.location.protocol === 'http:' ? 'http://' : 'https://';
+    navigator.clipboard.writeText(`${protocol}${domain}`);
     setCopiedUrl(true);
     setTimeout(() => setCopiedUrl(false), 2000);
   };
@@ -324,7 +334,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[320px] bg-brand-500/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[320px] bg-accent-500/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-md mx-auto px-4 w-full relative z-10">
+      <div className="max-w-lg mx-auto px-4 w-full relative z-10">
 
         {/* Top Bar: Return Link + Subdomain URL Bar */}
         <div className="mb-5 space-y-2.5">
@@ -342,7 +352,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
             </span>
           </div>
 
-          {/* Subdomain Switcher Box - Mobile Optimized */}
+          {/* Subdomain Switcher Box - Clean Grid Layout (No Scrolling) */}
           <div className="p-2 sm:p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800 shadow-xl backdrop-blur-xl">
             <div className="flex flex-col gap-2">
               
@@ -351,7 +361,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                 <div className="flex items-center gap-1.5 overflow-hidden">
                   <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span className="text-emerald-400 font-bold">https://</span>
-                  <span className="text-white font-bold truncate">{current.subdomain}</span>
+                  <span className="text-white font-bold truncate">{getDisplayUrl(activeSubdomain)}</span>
                 </div>
                 <button
                   onClick={handleCopyUrl}
@@ -362,18 +372,19 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                 </button>
               </div>
 
-              {/* Smooth Horizontal Touch-Scrollable Subdomain Pills (Zero Truncation on Mobile) */}
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 scroll-smooth">
+              {/* 6 Subdomain Pills: Equal width grid, zero scrollbar, all visible simultaneously */}
+              <div className="grid grid-cols-6 gap-1.5 w-full">
                 {(['client', 'work', 'directors', 'sponsors', 'ads', 'main'] as SubdomainId[]).map((subId) => {
                   const isActive = activeSubdomain === subId;
                   return (
                     <button
                       key={subId}
+                      type="button"
                       onClick={() => handleSubdomainChange(subId)}
-                      className={`flex-shrink-0 px-3 py-1.5 text-xs font-mono rounded-xl transition-all whitespace-nowrap ${
+                      className={`w-full py-1.5 px-0.5 text-center text-[11px] sm:text-xs font-mono rounded-xl transition-all truncate ${
                         isActive
-                          ? 'bg-brand-500 text-white font-bold shadow-md shadow-brand-500/25 ring-1 ring-white/20'
-                          : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800/80'
+                          ? 'bg-slate-100 text-slate-950 font-bold shadow-md'
+                          : 'bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-slate-200 border border-slate-800/80'
                       }`}
                     >
                       {subId}
@@ -552,11 +563,11 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-brand-600 via-accent-600 to-purple-600 hover:from-brand-500 hover:via-accent-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-brand-500/20 hover:shadow-brand-500/35 transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
+                      className="w-full py-3 px-6 rounded-xl bg-slate-100 hover:bg-white text-slate-950 font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 active:scale-[0.99]"
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
                           <span>Verifying Credentials...</span>
                         </>
                       ) : (
@@ -1026,11 +1037,11 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-brand-600 via-accent-600 to-purple-600 hover:from-brand-500 hover:via-accent-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-brand-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      className="w-full py-3 px-6 rounded-xl bg-slate-100 hover:bg-white text-slate-950 font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
                           <span>Activating Account...</span>
                         </>
                       ) : (
@@ -1049,24 +1060,6 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
           )}
 
         </SpotlightCard>
-
-        {/* Enterprise Security & Zero-Trust Gatekeeper Telemetry */}
-        <div className="mt-4 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 shadow-lg backdrop-blur-xl space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-mono">
-            <span className="text-slate-400 flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Zero-Trust IAM Gatekeeper</span>
-            </span>
-            <span className="text-emerald-400 font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Active
-            </span>
-          </div>
-
-          <p className="text-[10px] text-slate-500 leading-relaxed font-mono">
-            Protected by end-to-end cryptographic authentication. Every request is verified against RBAC permissions and PostgreSQL 18 user clearance.
-          </p>
-        </div>
 
       </div>
 
