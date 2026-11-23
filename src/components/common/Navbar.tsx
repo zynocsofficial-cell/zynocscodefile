@@ -23,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeSection, onNavigate }) => 
   const navLinks = [
     { id: Section.Home, label: 'Home' },
     { id: Section.Services, label: 'Services' },
+    { id: Section.AdPlacements, label: 'Ad Placements' },
     { id: Section.Blogs, label: 'Blogs' },
     { id: Section.About, label: 'About' },
     { id: Section.Careers, label: 'Careers' },

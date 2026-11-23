@@ -144,6 +144,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
+                <button onClick={() => onNavigate(Section.AdPlacements)} className="hover:text-brand-300 transition-colors inline-flex items-center">
+                  <span>Ad Placements</span>
+                  <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Sponsor
+                  </span>
+                </button>
+              </li>
+              <li>
                 <button onClick={() => onNavigate(Section.Careers)} className="hover:text-brand-300 transition-colors inline-flex items-center">
                   <span>Careers</span>
                   <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand-500/20 text-brand-400 border border-brand-500/30">

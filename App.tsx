@@ -18,6 +18,7 @@ import { Insights } from '@/modules/landing/components/Insights';
 import { ProjectCaseStudy } from '@/modules/landing/components/ProjectCaseStudy';
 import { BlogPostDetail } from '@/modules/landing/components/BlogPostDetail';
 import { CallToAction } from '@/modules/landing/components/CallToAction';
+import { AdPlacements } from '@/modules/landing/components/AdPlacements';
 import { SubdomainAuth } from '@/modules/auth/SubdomainAuth';
 import { authService } from '@/services/authService';
 
@@ -48,6 +49,17 @@ export const App: React.FC = () => {
         if (session) {
           setAuthenticatedUser(session);
         }
+      }
+
+      const secParam = params.get('section') || params.get('page');
+      if (secParam === 'ad_placements' || secParam === 'ads' || secParam === 'sponsors') {
+        setActiveSection(Section.AdPlacements);
+      } else if (secParam === 'blogs') {
+        setActiveSection(Section.Blogs);
+      } else if (secParam === 'about') {
+        setActiveSection(Section.About);
+      } else if (secParam === 'contact') {
+        setActiveSection(Section.Contact);
       }
 
       const subParam = params.get('subdomain') || params.get('portal');
@@ -128,10 +140,18 @@ export const App: React.FC = () => {
             <Hero onNavigate={handleNavigate} />
             <Portfolio onSelectProject={handleSelectProject} />
             <Services onNavigate={handleNavigate} />
+            <AdPlacements onNavigate={handleNavigate} />
             <Insights onSelectBlog={handleSelectBlog} isStandalonePage={false} />
             <Testimonials />
             <CallToAction onNavigate={handleNavigate} />
           </>
+        );
+
+      case Section.AdPlacements:
+        return (
+          <div className="pt-12 min-h-screen">
+            <AdPlacements onNavigate={handleNavigate} />
+          </div>
         );
 
       case Section.Services:

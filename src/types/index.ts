@@ -1,6 +1,7 @@
 export enum Section {
   Home = 'home',
   Services = 'services',
+  AdPlacements = 'ad_placements',
   About = 'about',
   Blogs = 'blogs',
   Insights = 'blogs',
