@@ -32,30 +32,30 @@ export const projectsData: ProjectItem[] = [
   {
     id: "estateflow",
     title: "EstateFlow",
-    subtitle: "Enterprise PropTech Ecosystem — 3D Digital Twins, Automated Lease Lifecycles & Smart Escrow",
-    category: "Commercial & Luxury Real Estate PropTech",
-    badge: "Agency Core • Built by Zynocs",
+    subtitle: "Property Discovery, 3D Showcase & Direct Company-to-Customer Connection Platform",
+    category: "Real Estate Discovery & Client Acquisition",
+    badge: "Agency Platform • Built by Zynocs",
     isPrivate: true,
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200&h=800",
     gradient: "from-blue-600 via-indigo-600 to-purple-700",
-    description: "Eliminates the 4-6 week closing lag for real estate agencies. Combines multiplayer 3D digital twin walkthroughs, automated tenant KYC & dynamic lease generation, and multi-signature digital escrow into a single deal cockpit.",
-    longDescription: "EstateFlow is an enterprise PropTech operating system engineered by Zynocs specifically to eliminate the #1 bottleneck for real estate agencies, brokerages, and asset managers: fragmented deal friction. By uniting 4K 60FPS interactive 3D digital twin walkthroughs, automated KYC/AML tenant qualification, dynamic digital lease contracts with biometric e-signing, and bank-grade cryptographic escrow settlement into one unified platform, EstateFlow converts lengthy multi-week transaction cycles into frictionless, same-day digital closes.",
-    tags: ["PropTech", "Lease Workflows", "3D Digital Twins", "Smart Escrow", "Agency CRM"],
+    description: "Empowers real estate companies to showcase premium properties with immersive 3D digital walkthroughs and connect directly with high-intent buyers and tenants with zero middlemen.",
+    longDescription: "EstateFlow is a specialized real estate showcase and client acquisition platform engineered by Zynocs. Built specifically to connect real estate companies, property developers, and agencies directly with customers, EstateFlow replaces static image galleries with interactive 3D property digital twins and direct client inquiry pipelines. Agencies can publish their property inventory with immersive spatial fidelity and convert interested seekers into direct appointments and sales consultations with zero third-party lead brokers.",
+    tags: ["Property Listings", "Company-to-Customer", "3D Virtual Tours", "Lead Generation", "Direct Booking"],
     metrics: [
-      { label: "Closing Cycle Time", value: "From 32 to 4 Days (-87%)" },
-      { label: "Remote Investor Deals", value: "+340% Velocity" },
-      { label: "Escrow Fraud Risk", value: "0 Incidents (Verified)" },
-      { label: "Assets Under Mgmt", value: "$420M+ Portfolios" }
+      { label: "Customer Inquiries", value: "+280% Qualified Leads" },
+      { label: "Listing Engagement", value: "5.4x Longer than 2D" },
+      { label: "Direct Consultations", value: "64% Booking Rate" },
+      { label: "Connected Agencies", value: "85+ Property Firms" }
     ],
-    challenge: "Traditional real estate agencies lose high-ticket commissions to 4 chronic operational bottlenecks: (1) Out-of-state and international buyers drop off due to static 2D photos and unengaging video walkthroughs; (2) Manual PDF contracts, external background checks, and fragmented legal reviews stretch deal turnarounds to 4-6 agonizing weeks; (3) Increasing exposure to wire fraud and manual reconciliation errors during earnest money deposits; and (4) Post-close tenant management collapses into chaotic WhatsApp messages, late maintenance requests, and manual rent tracking.",
-    solution: "Zynocs engineered EstateFlow as a complete end-to-end agency acceleration engine: (1) Interactive WebGL 3D digital twins enable agents to host remote live walkthroughs with synchronized spatial audio and real-time floor customization; (2) Automated compliance pipelines ingest tenant applications, execute instant KYC/credit checks, and generate jurisdiction-approved contracts with biometric e-signatures; (3) Multi-signature digital escrow vaults secure earnest funds with automated cryptographic milestone release; and (4) A unified landlord cockpit automates recurring rent collection, contractor dispatch, and live investor yield reporting.",
+    challenge: "Real estate agencies and builders face two major obstacles: (1) Mainstream property portal aggregators charge exorbitant monthly listing fees, bury independent agencies under corporate monopolies, and resell buyer inquiries to competing brokers; (2) Flat 2D photos fail to give prospective buyers and tenants an accurate feel of dimensions, natural lighting, and layout, resulting in high bounce rates and wasted physical site visits with uncommitted clients.",
+    solution: "Zynocs built EstateFlow as an agency-first property showcase and customer connection engine: (1) Interactive WebGL 3D virtual walkthroughs let customers explore residential and commercial spaces room-by-room in full 3D detail from any phone or laptop; (2) Instant direct-connect channels (1-click WhatsApp, phone, and automated calendar viewings) link customers straight to the listing company's sales reps; and (3) Smart qualification intake forms capture customer timelines, preferences, and budgets so companies only spend time on serious, ready-to-act buyers.",
     keyFeatures: [
-      { title: "Multiplayer 3D Digital Twins & Virtual Staging", desc: "Ultra-low latency Three.js 4K walkthroughs allowing agents and remote international buyers to tour properties together in real-time with spatial audio, digital measuring tools, and instant lighting/furniture staging toggles." },
-      { title: "Automated Tenant KYC & Dynamic Lease Generation", desc: "Automated applicant background screening, biometric identity validation, and dynamic jurisdiction-compliant contract generation with legally binding mobile e-signatures, cutting leasing cycles from weeks to minutes." },
-      { title: "Cryptographic Multi-Signature Escrow Vault", desc: "Bank-grade escrow pipeline with automated fund locking, verified legal milestones, and multi-signature release protocols that eliminate wire fraud risks and manual financial reconciliation." },
-      { title: "Unified Agency, Landlord & Tenant Cockpit", desc: "Post-close portal with automated recurring rent processing via ACH/cards, 1-click vendor maintenance dispatch with photo tracking, and real-time cap rate & ROI telemetry for property owners." }
+      { title: "Immersive 3D Property Showcase & Virtual Tours", desc: "Ultra-responsive Three.js 4K WebGL digital twins enabling customers to explore layout floor plans, check room dimensions, and toggle daylight modes directly in browser without installing any apps." },
+      { title: "Direct Company-to-Customer Connection Pipeline", desc: "Customers inquire directly with the property company or assigned agent via 1-click verified channels with zero intermediary lead brokers or hidden referral fees." },
+      { title: "Smart Buyer & Tenant Qualification Engine", desc: "Structured inquiry filters that capture target budget, moving timelines, and space specifications to deliver pre-screened, high-intent client leads directly to the agency's sales team." },
+      { title: "Real-Time Agency Portfolio Management", desc: "Intuitive management dashboard allowing real estate companies to effortlessly publish new properties, update availability statuses, manage photos and 3D floor plans, and track customer inquiry volumes." }
     ],
-    techStack: ["React", "TypeScript", "Three.js / WebGL", "Node.js", "PostgreSQL", "WebRTC", "Docker", "AWS S3 / CloudFront"]
+    techStack: ["React", "TypeScript", "Three.js / WebGL", "Node.js", "PostgreSQL", "Tailwind CSS", "AWS S3 / CloudFront"]
   },
   {
     id: "frigzone",
