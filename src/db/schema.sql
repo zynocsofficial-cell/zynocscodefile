@@ -73,11 +73,11 @@ CREATE TABLE IF NOT EXISTS sponsor_campaigns (
 -- INITIAL FOUNDER & SEED DATA
 -- ==============================================================================
 
--- Insert Founders (Placeholder Bcrypt Hash for 'Zynocs@2026!')
+-- Insert Founders (Real Bcrypt Hash for 'Zynocs@2026!')
 INSERT INTO users (id, email, password_hash, full_name, is_2fa_enabled)
 VALUES 
-    ('11111111-1111-1111-1111-111111111111', 'mohammed@zynocs.com', '$2b$12$eZ.1f456ZynocsHashedKeyChairperson', 'Mohammed Khaja Moinuddin', TRUE),
-    ('22222222-2222-2222-2222-222222222222', 'yousuf@zynocs.com', '$2b$12$eZ.1f456ZynocsHashedKeyCEO', 'Yousuf Mohammed Jaleel', TRUE)
+    ('11111111-1111-1111-1111-111111111111', 'mohammed@zynocs.com', '$2b$10$B4Dwg37wkjhdc8L4H1ucl.jkZSgF4Klkl5n.VMQchKUcsjG/..Otu', 'Mohammed Khaja Moinuddin', TRUE),
+    ('22222222-2222-2222-2222-222222222222', 'yousuf@zynocs.com', '$2b$10$B4Dwg37wkjhdc8L4H1ucl.jkZSgF4Klkl5n.VMQchKUcsjG/..Otu', 'Yousuf Mohammed Jaleel', TRUE)
 ON CONFLICT (email) DO NOTHING;
 
 -- Assign Director & Board Roles
