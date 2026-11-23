@@ -461,32 +461,46 @@ class AuthService {
 
 export const buildSubdomainUrl = (subdomain: SubdomainId, token?: string): string => {
   if (typeof window === 'undefined') return '/';
-  const isLocal = window.location.hostname.includes('localhost');
+  const hostname = window.location.hostname;
+  const isLocal = hostname.includes('localhost');
   const port = window.location.port ? `:${window.location.port}` : '';
   const protocol = window.location.protocol || 'http:';
 
-  let host = '';
-  if (isLocal) {
-    host = subdomain === 'main' ? `localhost${port}` : `${subdomain}.localhost${port}`;
-  } else {
-    const parts = window.location.hostname.split('.');
-    const rootDomain = parts.length > 1 ? parts.slice(-2).join('.') : 'zynocs.com';
-    host = subdomain === 'main' ? rootDomain : `${subdomain}.${rootDomain}`;
+  // 1. If on Vercel preview/deployment domain (*.vercel.app), subdomains do not exist on Vercel
+  if (hostname.endsWith('.vercel.app')) {
+    const query = token ? `?auth_token=${encodeURIComponent(token)}&portal=${subdomain}` : `?portal=${subdomain}`;
+    return `${protocol}//${hostname}/${query}`;
   }
 
+  // 2. Local development (*.localhost)
+  if (isLocal) {
+    const host = subdomain === 'main' ? `localhost${port}` : `${subdomain}.localhost${port}`;
+    const query = token ? `?auth_token=${encodeURIComponent(token)}` : '';
+    return `${protocol}//${host}/${query}`;
+  }
+
+  // 3. Custom domain (zynocs.com)
+  const parts = hostname.split('.');
+  const rootDomain = parts.length > 1 ? parts.slice(-2).join('.') : 'zynocs.com';
+  const host = subdomain === 'main' ? rootDomain : `${subdomain}.${rootDomain}`;
   const query = token ? `?auth_token=${encodeURIComponent(token)}` : '';
   return `${protocol}//${host}/${query}`;
 };
 
 export const getRootDomainUrl = (): string => {
   if (typeof window === 'undefined') return '/';
-  const isLocal = window.location.hostname.includes('localhost');
+  const hostname = window.location.hostname;
+  const isLocal = hostname.includes('localhost');
   const port = window.location.port ? `:${window.location.port}` : '';
   const protocol = window.location.protocol || 'http:';
+
+  if (hostname.endsWith('.vercel.app')) {
+    return `${protocol}//${hostname}/`;
+  }
   if (isLocal) {
     return `${protocol}//localhost${port}/`;
   }
-  const parts = window.location.hostname.split('.');
+  const parts = hostname.split('.');
   const rootDomain = parts.length > 1 ? parts.slice(-2).join('.') : 'zynocs.com';
   return `${protocol}//${rootDomain}/`;
 };

@@ -271,7 +271,8 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       }
 
       const currentSub = getCurrentSubdomainFromUrl();
-      if (currentSub !== activeSubdomain) {
+      const isLocalhost = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+      if (isLocalhost && currentSub !== activeSubdomain) {
         window.location.href = buildSubdomainUrl(activeSubdomain, res.user.token);
         return;
       }
@@ -304,7 +305,8 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       }
 
       const currentSub = getCurrentSubdomainFromUrl();
-      if (currentSub !== activeSubdomain) {
+      const isLocalhost = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+      if (isLocalhost && currentSub !== activeSubdomain) {
         window.location.href = buildSubdomainUrl(activeSubdomain, res.user.token);
         return;
       }
@@ -332,7 +334,8 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
         setTimeout(() => {
           setPasskeyModalOpen(false);
           const currentSub = getCurrentSubdomainFromUrl();
-          if (currentSub !== activeSubdomain) {
+          const isLocalhost = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+          if (isLocalhost && currentSub !== activeSubdomain) {
             window.location.href = buildSubdomainUrl(activeSubdomain, user.token);
             return;
           }
