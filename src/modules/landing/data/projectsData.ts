@@ -32,30 +32,30 @@ export const projectsData: ProjectItem[] = [
   {
     id: "estateflow",
     title: "EstateFlow",
-    subtitle: "Enterprise PropTech & Automated Asset Management",
-    category: "Real Estate & PropTech",
-    badge: "Private Project",
+    subtitle: "Enterprise PropTech Ecosystem — 3D Digital Twins, Automated Lease Lifecycles & Smart Escrow",
+    category: "Commercial & Luxury Real Estate PropTech",
+    badge: "Agency Core • Built by Zynocs",
     isPrivate: true,
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200&h=800",
     gradient: "from-blue-600 via-indigo-600 to-purple-700",
-    description: "A comprehensive commercial & residential real estate ecosystem featuring interactive 3D floor plans, automated tenant lease workflows, and secure digital escrow management.",
-    longDescription: "EstateFlow is an exclusive enterprise PropTech solution architected by Zynocs for a private commercial real estate consortium. The platform digitizes the entire lifecycle of multi-million dollar property portfolios—from digital twin staging and virtual walkthroughs to automated KYC tenant verification, lease smart contracts, and escrow transaction settlement.",
-    tags: ["PropTech", "Lease Workflows", "3D Digital Twins", "Escrow Security"],
+    description: "Eliminates the 4-6 week closing lag for real estate agencies. Combines multiplayer 3D digital twin walkthroughs, automated tenant KYC & dynamic lease generation, and multi-signature digital escrow into a single deal cockpit.",
+    longDescription: "EstateFlow is an enterprise PropTech operating system engineered by Zynocs specifically to eliminate the #1 bottleneck for real estate agencies, brokerages, and asset managers: fragmented deal friction. By uniting 4K 60FPS interactive 3D digital twin walkthroughs, automated KYC/AML tenant qualification, dynamic digital lease contracts with biometric e-signing, and bank-grade cryptographic escrow settlement into one unified platform, EstateFlow converts lengthy multi-week transaction cycles into frictionless, same-day digital closes.",
+    tags: ["PropTech", "Lease Workflows", "3D Digital Twins", "Smart Escrow", "Agency CRM"],
     metrics: [
-      { label: "Portfolio Value", value: "$420M+ Managed" },
-      { label: "Lease Cycle Time", value: "-68% Faster" },
-      { label: "Virtual Walkthroughs", value: "4K 60FPS WebGL" },
-      { label: "Security Standard", value: "SOC 2 Type II" }
+      { label: "Closing Cycle Time", value: "From 32 to 4 Days (-87%)" },
+      { label: "Remote Investor Deals", value: "+340% Velocity" },
+      { label: "Escrow Fraud Risk", value: "0 Incidents (Verified)" },
+      { label: "Assets Under Mgmt", value: "$420M+ Portfolios" }
     ],
-    challenge: "Commercial real estate transactions suffered from fragmented tooling: brokers used third-party 3D tour viewers, attorneys circulated paper-heavy leases, and finance teams operated siloed escrow accounts, resulting in lengthy 6-week deal cycles.",
-    solution: "Zynocs built an integrated ecosystem combining WebGL virtual property digital twins with automated digital legal workflows. Real-time document collaboration, biometric e-signatures, and verified multi-signature escrow wallets were united into a singular real-time management cockpit.",
+    challenge: "Traditional real estate agencies lose high-ticket commissions to 4 chronic operational bottlenecks: (1) Out-of-state and international buyers drop off due to static 2D photos and unengaging video walkthroughs; (2) Manual PDF contracts, external background checks, and fragmented legal reviews stretch deal turnarounds to 4-6 agonizing weeks; (3) Increasing exposure to wire fraud and manual reconciliation errors during earnest money deposits; and (4) Post-close tenant management collapses into chaotic WhatsApp messages, late maintenance requests, and manual rent tracking.",
+    solution: "Zynocs engineered EstateFlow as a complete end-to-end agency acceleration engine: (1) Interactive WebGL 3D digital twins enable agents to host remote live walkthroughs with synchronized spatial audio and real-time floor customization; (2) Automated compliance pipelines ingest tenant applications, execute instant KYC/credit checks, and generate jurisdiction-approved contracts with biometric e-signatures; (3) Multi-signature digital escrow vaults secure earnest funds with automated cryptographic milestone release; and (4) A unified landlord cockpit automates recurring rent collection, contractor dispatch, and live investor yield reporting.",
     keyFeatures: [
-      { title: "Interactive 3D Virtual Staging", desc: "High-fidelity Three.js 3D walkthroughs enabling remote international investors to inspect properties room by room." },
-      { title: "Automated Lease Lifecycle", desc: "Dynamic contract generator with integrated legal compliance checks, digital signatures, and milestone renewal alerts." },
-      { title: "Digital Escrow Vault", desc: "Multi-signature escrow transaction gateway providing instant cryptographic proof of reserve and verified fund disbursements." },
-      { title: "Tenant & Vendor Portal", desc: "Dedicated mobile and desktop workspaces for tenant maintenance ticketing, rent processing, and amenity bookings." }
+      { title: "Multiplayer 3D Digital Twins & Virtual Staging", desc: "Ultra-low latency Three.js 4K walkthroughs allowing agents and remote international buyers to tour properties together in real-time with spatial audio, digital measuring tools, and instant lighting/furniture staging toggles." },
+      { title: "Automated Tenant KYC & Dynamic Lease Generation", desc: "Automated applicant background screening, biometric identity validation, and dynamic jurisdiction-compliant contract generation with legally binding mobile e-signatures, cutting leasing cycles from weeks to minutes." },
+      { title: "Cryptographic Multi-Signature Escrow Vault", desc: "Bank-grade escrow pipeline with automated fund locking, verified legal milestones, and multi-signature release protocols that eliminate wire fraud risks and manual financial reconciliation." },
+      { title: "Unified Agency, Landlord & Tenant Cockpit", desc: "Post-close portal with automated recurring rent processing via ACH/cards, 1-click vendor maintenance dispatch with photo tracking, and real-time cap rate & ROI telemetry for property owners." }
     ],
-    techStack: ["React", "Three.js / WebGL", "Node.js", "PostgreSQL", "Tailwind CSS", "Docker", "AWS S3"]
+    techStack: ["React", "TypeScript", "Three.js / WebGL", "Node.js", "PostgreSQL", "WebRTC", "Docker", "AWS S3 / CloudFront"]
   },
   {
     id: "frigzone",
