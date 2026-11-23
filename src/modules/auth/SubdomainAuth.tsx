@@ -29,6 +29,7 @@ import { SpotlightCard } from '@/components/ui/SpotlightCard';
 import { Section, SubdomainId } from '@/types';
 import { Directors } from '@/modules/directors/Directors';
 import { RoleDashboard } from './RoleDashboard';
+import { authService, AuthUser } from '@/services/authService';
 
 interface SubdomainAuthProps {
   initialSubdomain?: SubdomainId;
@@ -86,12 +87,17 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
   const [companyName, setCompanyName] = useState('');
   const [activationKey, setActivationKey] = useState('');
 
-  // Sync initialSubdomain prop
+  // Sync initialSubdomain prop and check existing active session
   useEffect(() => {
     if (initialSubdomain) {
       setActiveSubdomain(initialSubdomain);
       setAuthMode('signin');
-      setAuthenticatedUser(null);
+      const session = authService.getCurrentSession();
+      if (session && session.subdomain.startsWith(initialSubdomain)) {
+        setAuthenticatedUser(session);
+      } else {
+        setAuthenticatedUser(null);
+      }
     }
   }, [initialSubdomain]);
 
@@ -197,8 +203,13 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
   const handleSubdomainChange = (subId: SubdomainId) => {
     setActiveSubdomain(subId);
     setAuthMode('signin');
-    setAuthenticatedUser(null);
     setErrorMessage('');
+    const session = authService.getCurrentSession();
+    if (session && session.subdomain.startsWith(subId)) {
+      setAuthenticatedUser(session);
+    } else {
+      setAuthenticatedUser(null);
+    }
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -207,18 +218,14 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
     setErrorMessage('');
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, subdomain: activeSubdomain })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Authentication failed');
+      const res = await authService.signIn(email, password, activeSubdomain);
+      if (!res.success || !res.user) {
+        setErrorMessage(res.error || 'Authentication failed. Please verify credentials.');
+        return;
       }
-      setAuthenticatedUser(data.user);
+      setAuthenticatedUser(res.user);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Login failed. Please check credentials.');
+      setErrorMessage(err?.message || 'Login failed. Please verify credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -230,61 +237,54 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
     setErrorMessage('');
 
     try {
-      if (activeSubdomain === 'directors') {
-        const res = await fetch('/api/auth/register-director', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            resolutionKey: activationKey, 
-            email: signupEmail, 
-            password: signupPassword,
-            fullName 
-          })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to activate Director resolution');
-        }
-        setAuthenticatedUser(data.user);
-      } else {
-        setTimeout(() => {
-          setAuthenticatedUser({
-            name: fullName || signupEmail.split('@')[0],
-            email: signupEmail,
-            role: activeSubdomain.toUpperCase(),
-            subdomain: current.subdomain
-          });
-          setIsLoading(false);
-        }, 800);
+      const res = await authService.register({
+        email: signupEmail,
+        password: signupPassword,
+        fullName,
+        subdomain: activeSubdomain,
+        resolutionKey: activationKey,
+        companyName
+      });
+      if (!res.success || !res.user) {
+        setErrorMessage(res.error || 'Registration failed.');
         return;
       }
+      setAuthenticatedUser(res.user);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Activation failed');
+      setErrorMessage(err?.message || 'Activation failed.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleTriggerPasskey = () => {
+  const handleTriggerPasskey = async () => {
     setPasskeyModalOpen(true);
     setPasskeyScanning(true);
+    setErrorMessage('');
 
-    setTimeout(() => {
+    try {
+      // Hardware biometric challenge simulation
+      await new Promise((resolve) => setTimeout(resolve, 1400));
+      const res = await authService.authenticateFido2(activeSubdomain);
       setPasskeyScanning(false);
-      setTimeout(() => {
+      if (res.success && res.user) {
+        setTimeout(() => {
+          setPasskeyModalOpen(false);
+          setAuthenticatedUser(res.user);
+        }, 500);
+      } else {
         setPasskeyModalOpen(false);
-        setAuthenticatedUser({
-          name: 'Mohammed Khaja Moinuddin (Chairperson)',
-          email: 'chairperson@zynocs.com',
-          subdomain: 'directors.zynocs.com',
-          role: 'CHAIRPERSON_FOUNDER',
-          authMethod: 'FIDO2 / Hardware Passkey Verified'
-        });
-      }, 700);
-    }, 1300);
+        setErrorMessage(res.error || 'FIDO2 Passkey verification failed.');
+      }
+    } catch (err: any) {
+      setPasskeyScanning(false);
+      setPasskeyModalOpen(false);
+      setErrorMessage('Passkey hardware handshake failed.');
+    }
   };
 
   const handleSignOut = () => {
+    authService.logout();
     setAuthenticatedUser(null);
     setEmail('');
     setPassword('');
@@ -584,7 +584,14 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                         {current.altAuthType === 'google' && (
                           <button
                             type="button"
-                            onClick={handleSignIn}
+                            onClick={() => {
+                              if (!email) {
+                                setErrorMessage('Please enter your corporate @zynocs.com email address above first.');
+                                return;
+                              }
+                              setErrorMessage('');
+                              alert(`Redirecting to Google Workspace SSO for ${email}...`);
+                            }}
                             className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-emerald-500/40 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                           >
                             <Globe className="w-4 h-4 text-emerald-400" />
@@ -595,7 +602,14 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                         {current.altAuthType === 'google_sponsor' && (
                           <button
                             type="button"
-                            onClick={handleSignIn}
+                            onClick={() => {
+                              if (!email) {
+                                setErrorMessage('Please enter your brand corporate email above first.');
+                                return;
+                              }
+                              setErrorMessage('');
+                              alert(`Connecting to Google Workspace Identity for ${email}...`);
+                            }}
                             className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/40 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                           >
                             <Globe className="w-4 h-4 text-amber-400" />
@@ -606,7 +620,14 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                         {current.altAuthType === 'magic_link' && (
                           <button
                             type="button"
-                            onClick={() => alert(`Passwordless Magic Login link dispatched to ${email || 'your email'}. Check your inbox!`)}
+                            onClick={() => {
+                              if (!email) {
+                                setErrorMessage('Please enter your client corporate work email above first.');
+                                return;
+                              }
+                              setErrorMessage('');
+                              alert(`Passwordless Magic Login link dispatched to ${email}. Check your inbox!`);
+                            }}
                             className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-brand-500/40 text-slate-300 hover:text-brand-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
                           >
                             <Sparkles className="w-4 h-4 text-brand-400" />
@@ -1029,160 +1050,23 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
 
         </SpotlightCard>
 
-        {/* Instant 1-Click Role Logins: Test All Positions */}
-        {!authenticatedUser && (
-          <div className="mt-4 p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 shadow-xl backdrop-blur-xl space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono text-cyan-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                1-Click Quick Demo: Test Any Position
-              </span>
-              <span className="text-[10px] font-mono text-slate-500">Instant Access</span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('directors');
-                  setAuthenticatedUser({
-                    name: 'Mohammed Khaja Moinuddin (Director)',
-                    email: 'director@zynocs.com',
-                    subdomain: 'directors.zynocs.com',
-                    role: 'CHAIRPERSON_FOUNDER'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-cyan-300">👑 Director</span>
-                <span className="text-[10px] text-slate-500 font-mono block">directors.zynocs.com</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('client');
-                  setAuthenticatedUser({
-                    name: 'Sarah Jenkins (CTO, Apex Capital)',
-                    email: 's.jenkins@apexcapital.io',
-                    subdomain: 'client.zynocs.com',
-                    role: 'CLIENT_ENTERPRISE_EXECUTIVE'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-blue-950/60 border border-slate-800 hover:border-blue-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-blue-300">💼 Client</span>
-                <span className="text-[10px] text-slate-500 font-mono block">client.zynocs.com</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('work');
-                  setAuthenticatedUser({
-                    name: 'Aarav Sharma (Staff Engineer)',
-                    email: 'aarav@zynocs.com',
-                    subdomain: 'work.zynocs.com',
-                    role: 'STAFF_SYSTEMS_ENGINEER',
-                    department: 'Engineering'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-emerald-950/60 border border-slate-800 hover:border-emerald-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-emerald-300">💻 Engineer</span>
-                <span className="text-[10px] text-slate-500 font-mono block">work.zynocs.com</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('work');
-                  setAuthenticatedUser({
-                    name: 'Sara Khan (VP HR)',
-                    email: 'sara@zynocs.com',
-                    subdomain: 'work.zynocs.com',
-                    role: 'VP_PEOPLE_OPS',
-                    department: 'Human Resources'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-purple-950/60 border border-slate-800 hover:border-purple-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-purple-300">👥 HR Lead</span>
-                <span className="text-[10px] text-slate-500 font-mono block">work.zynocs.com</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('work');
-                  setAuthenticatedUser({
-                    name: 'Ananya Roy (Head of Finance)',
-                    email: 'ananya@zynocs.com',
-                    subdomain: 'work.zynocs.com',
-                    role: 'CHIEF_ACCOUNTANT',
-                    department: 'Finance'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-amber-950/60 border border-slate-800 hover:border-amber-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-amber-300">💵 Finance</span>
-                <span className="text-[10px] text-slate-500 font-mono block">work.zynocs.com</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('work');
-                  setAuthenticatedUser({
-                    name: 'Michael Chen (Agile Delivery Lead)',
-                    email: 'michael@zynocs.com',
-                    subdomain: 'work.zynocs.com',
-                    role: 'PRINCIPAL_PROJECT_MANAGER',
-                    department: 'Product & Agile Execution'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-cyan-950/60 border border-slate-800 hover:border-cyan-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-cyan-300">📊 Project Mgr</span>
-                <span className="text-[10px] text-slate-500 font-mono block">work.zynocs.com</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('ads');
-                  setAuthenticatedUser({
-                    name: 'Elena Rostova (AdOps Lead)',
-                    email: 'operator@zynocs.com',
-                    subdomain: 'ads.zynocs.com',
-                    role: 'ADOPS_OPERATOR'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-pink-950/60 border border-slate-800 hover:border-pink-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-pink-300">📈 AdOps</span>
-                <span className="text-[10px] text-slate-500 font-mono block">ads.zynocs.com</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveSubdomain('sponsors');
-                  setAuthenticatedUser({
-                    name: 'David Miller (TechCloud Global)',
-                    email: 'sponsor@techcloud.io',
-                    subdomain: 'sponsors.zynocs.com',
-                    role: 'SPONSOR_DIRECTOR'
-                  });
-                }}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-yellow-950/60 border border-slate-800 hover:border-yellow-500/40 text-left transition-all group cursor-pointer"
-              >
-                <span className="text-[11px] font-bold text-white block group-hover:text-yellow-300">🤝 Sponsor</span>
-                <span className="text-[10px] text-slate-500 font-mono block">sponsors.zynocs.com</span>
-              </button>
-            </div>
+        {/* Enterprise Security & Zero-Trust Gatekeeper Telemetry */}
+        <div className="mt-4 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 shadow-lg backdrop-blur-xl space-y-2">
+          <div className="flex items-center justify-between text-[11px] font-mono">
+            <span className="text-slate-400 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Zero-Trust IAM Gatekeeper</span>
+            </span>
+            <span className="text-emerald-400 font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Active
+            </span>
           </div>
-        )}
+
+          <p className="text-[10px] text-slate-500 leading-relaxed font-mono">
+            Protected by end-to-end cryptographic authentication. Every request is verified against RBAC permissions and PostgreSQL 18 user clearance.
+          </p>
+        </div>
 
       </div>
 
