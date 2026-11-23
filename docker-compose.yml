@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # 1. Continuous Production Node.js Backend & SPA
+  backend:
+    build: .
+    container_name: zynocs_backend
+    restart: always
+    ports:
+      - "8800:8800"
+    environment:
+      - NODE_ENV=production
+      - PORT=8800
+      - HOST=0.0.0.0
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=zynocs_admin
+      - DB_PASSWORD=ZynocsProdSecure2026!
+      - DB_NAME=zynocs_enterprise
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - zynocs_mesh
+
+  # 2. Continuous PostgreSQL 18 Enterprise Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: zynocs_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=zynocs_admin
+      - POSTGRES_PASSWORD=ZynocsProdSecure2026!
+      - POSTGRES_DB=zynocs_enterprise
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zynocs_admin -d zynocs_enterprise"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zynocs_mesh
+
+networks:
+  zynocs_mesh:
+    driver: bridge
+
+volumes:
+  postgres_data:

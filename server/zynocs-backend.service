@@ -1,0 +1,22 @@
+[Unit]
+Description=Zynocs Enterprise Continuous Node.js Backend & API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/zynocs
+ExecStart=/usr/bin/node --experimental-strip-types server/server.ts
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=PORT=8800
+Environment=HOST=0.0.0.0
+Environment=DB_HOST=localhost
+Environment=DB_PORT=5432
+Environment=DB_USER=zynocs_admin
+Environment=DB_PASSWORD=ZynocsProdSecure2026!
+Environment=DB_NAME=zynocs_enterprise
+
+[Install]
+WantedBy=multi-user.target
