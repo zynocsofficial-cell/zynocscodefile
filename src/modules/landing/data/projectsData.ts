@@ -58,6 +58,33 @@ export const projectsData: ProjectItem[] = [
     techStack: ["React", "Three.js / WebGL", "Node.js", "PostgreSQL", "Tailwind CSS", "Docker", "AWS S3"]
   },
   {
+    id: "frigzone",
+    title: "FrigZone",
+    subtitle: "Commercial & Residential Cooling Equipment Ecosystem — Refurbished, Tested & Warranty-Backed",
+    category: "Industrial ReCommerce & Logistics",
+    badge: "Built by Zynocs",
+    image: "/images/projects/frigzone.jpg",
+    gradient: "from-blue-600 via-indigo-600 to-cyan-600",
+    description: "Premium refurbished refrigerators and commercial cooling equipment, professionally restored for reliable performance and backed by warranty.",
+    longDescription: "FrigZone (frigzone.com) is a high-performance commercial and residential refrigeration re-commerce marketplace architected and engineered by Zynocs. Built to power reliable industrial cooling trade, FrigZone unites enterprise equipment tracking, multi-point diagnostic verification, certified warranty enforcement, and real-time inventory management into an ultra-responsive modern digital storefront.",
+    tags: ["Refrigeration ReCommerce", "Inventory Telemetry", "Warranty Management", "Industrial Trade"],
+    metrics: [
+      { label: "Refurbished Units", value: "1,400+ Units" },
+      { label: "Diagnostic Checkpoints", value: "48-Point Tested" },
+      { label: "Warranty Backing", value: "100% Certified" },
+      { label: "Commercial Reliability", value: "99.8% Uptime" }
+    ],
+    challenge: "Commercial cooling equipment procurement traditionally relies on fragmented secondary dealers with zero standardized quality benchmarks, unverifiable repair histories, and lack of warranty coverage for heavy-duty restaurant, grocery, and medical cooling units.",
+    solution: "Zynocs engineered a comprehensive digital re-commerce and diagnostics tracking ecosystem. Every refrigerator unit is serialized, cataloged with high-resolution visual condition grades, thermodynamic testing logs, and issued a verified digital warranty certificate with automated service claim workflows.",
+    keyFeatures: [
+      { title: "Dynamic Unit Inventory & Availability", desc: "Real-time stock reservation and regional logistics tracking for commercial reach-in coolers, display freezers, and industrial chillers." },
+      { title: "48-Point Diagnostic Certification", desc: "Digital verification pipeline logging compressor health, refrigerant pressure testing, and energy efficiency benchmarks before release." },
+      { title: "Automated Warranty Vault", desc: "Self-serve customer portal for instant warranty activation, claim dispatch, and scheduled preventive maintenance." },
+      { title: "Instant Unit Reservation", desc: "Streamlined checkout and B2B quotation generator with instant shipping calculation and delivery scheduling." }
+    ],
+    techStack: ["React", "TypeScript", "Node.js", "PostgreSQL", "Tailwind CSS", "Redis", "AWS CloudFront"]
+  },
+  {
     id: "jobbuddy",
     title: "JobBuddy",
     subtitle: "Intelligent Talent Discovery & Hiring Ecosystem",
