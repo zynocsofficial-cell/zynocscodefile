@@ -96,7 +96,8 @@ server.listen(PORT, HOST, () => {
   console.log(`====================================================`);
   console.log(`🚀 ZYNOCS ENTERPRISE PRODUCTION BACKEND RUNNING 24/7`);
   console.log(`📡 URL: http://${HOST}:${PORT}`);
-  console.log(`🛡️  Database: PostgreSQL (${process.env.DB_NAME || 'zynocs_enterprise'})`);
+  const dbTarget = process.env.DATABASE_URL ? 'Connected via DATABASE_URL (Supabase / Remote)' : (process.env.DB_NAME || 'zynocs_enterprise');
+  console.log(`🛡️  Database: PostgreSQL (${dbTarget})`);
   console.log(`🌐 Subdomains: directors, client, work, ads, sponsors`);
   console.log(`====================================================`);
 });

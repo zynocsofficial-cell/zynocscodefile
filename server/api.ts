@@ -4,15 +4,24 @@ import type { IncomingMessage, ServerResponse } from 'http';
 
 const { Pool } = pg;
 
-export const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '8800', 10),
-  user: process.env.DB_USER || 'mohammedkhajamoinuddin',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'zynocs_enterprise',
-  max: 10,
-  idleTimeoutMillis: 30000,
-});
+export const pool = new Pool(
+  process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false },
+        max: 10,
+        idleTimeoutMillis: 30000,
+      }
+    : {
+        host: process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.DB_PORT || '8800', 10),
+        user: process.env.DB_USER || 'mohammedkhajamoinuddin',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'zynocs_enterprise',
+        max: 10,
+        idleTimeoutMillis: 30000,
+      }
+);
 
 export const parseBody = (req: IncomingMessage): Promise<any> => {
   return new Promise((resolve, reject) => {
