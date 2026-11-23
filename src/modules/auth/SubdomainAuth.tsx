@@ -23,7 +23,8 @@ import {
   Mail, 
   Award,
   FileCheck2,
-  Key
+  Key,
+  ExternalLink
 } from 'lucide-react';
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
 import { Section, SubdomainId } from '@/types';
@@ -356,17 +357,22 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
           <div className="p-2 sm:p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800 shadow-xl backdrop-blur-xl">
             <div className="flex flex-col gap-2">
               
-              {/* Domain URL Address Indicator */}
+              {/* Domain URL Address Indicator - Click to open in browser address bar */}
               <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
-                <div className="flex items-center gap-1.5 overflow-hidden">
+                <a
+                  href={`${typeof window !== 'undefined' && window.location.protocol === 'http:' ? 'http://' : 'https://'}${getDisplayUrl(activeSubdomain)}`}
+                  className="flex items-center gap-1.5 overflow-hidden text-slate-300 hover:text-white group transition-colors"
+                  title="Click to navigate browser to this subdomain address"
+                >
                   <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span className="text-emerald-400 font-bold">https://</span>
-                  <span className="text-white font-bold truncate">{getDisplayUrl(activeSubdomain)}</span>
-                </div>
+                  <span className="text-white font-bold truncate group-hover:underline">{getDisplayUrl(activeSubdomain)}</span>
+                  <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-cyan-400 shrink-0 ml-0.5" />
+                </a>
                 <button
                   onClick={handleCopyUrl}
                   title="Copy Subdomain URL"
-                  className="text-slate-500 hover:text-slate-300 pl-2 shrink-0 transition-colors"
+                  className="text-slate-500 hover:text-slate-300 pl-2 shrink-0 transition-colors cursor-pointer"
                 >
                   {copiedUrl ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
