@@ -63,6 +63,7 @@ import { AccessControlApp } from './apps/AccessControlApp';
 import { TasksApp } from './apps/TasksApp';
 import { AccountsApp } from './apps/AccountsApp';
 import { CodeReposApp } from './apps/CodeReposApp';
+import { getRootDomainUrl } from '@/services/authService';
 import { MeetingsCalendarApp } from './apps/MeetingsCalendarApp';
 import { DirectorProfileSettings } from './profile/DirectorProfileSettings';
 import { RolesPreviewApp, SimulatedRoleConfig } from './apps/RolesPreviewApp';
@@ -645,8 +646,16 @@ export const Directors: React.FC<DirectorsProps> = ({
 
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => onNavigate(Section.Home)}
-              className="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-[11px] font-semibold border border-slate-800 transition-all flex items-center justify-center gap-1.5"
+              onClick={() => {
+                const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+                const isRoot = isLocal ? window.location.hostname === 'localhost' : window.location.hostname.startsWith('zynocs.com');
+                if (!isRoot) {
+                  window.location.href = getRootDomainUrl();
+                } else {
+                  onNavigate(Section.Home);
+                }
+              }}
+              className="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-[11px] font-semibold border border-slate-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <ArrowLeft className="w-3 h-3" />
               <span>Website</span>

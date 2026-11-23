@@ -19,6 +19,7 @@ import { ProjectCaseStudy } from '@/modules/landing/components/ProjectCaseStudy'
 import { BlogPostDetail } from '@/modules/landing/components/BlogPostDetail';
 import { CallToAction } from '@/modules/landing/components/CallToAction';
 import { SubdomainAuth } from '@/modules/auth/SubdomainAuth';
+import { authService } from '@/services/authService';
 
 import { ProjectItem, Section, BlogPostItem, SubdomainId } from '@/types';
 
@@ -35,6 +36,21 @@ export const App: React.FC = () => {
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
+      const authToken = params.get('auth_token') || params.get('token');
+      
+      if (authToken) {
+        const user = authService.restoreFromToken(authToken);
+        if (user) {
+          setAuthenticatedUser(user);
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        const session = authService.getCurrentSession();
+        if (session) {
+          setAuthenticatedUser(session);
+        }
+      }
+
       const subParam = params.get('subdomain') || params.get('portal');
       const validSubdomains: SubdomainId[] = ['main', 'directors', 'work', 'client', 'ads', 'sponsors'];
       

@@ -30,7 +30,7 @@ import { SpotlightCard } from '@/components/ui/SpotlightCard';
 import { Section, SubdomainId } from '@/types';
 import { Directors } from '@/modules/directors/Directors';
 import { RoleDashboard } from './RoleDashboard';
-import { authService, AuthUser } from '@/services/authService';
+import { authService, AuthUser, buildSubdomainUrl, getRootDomainUrl } from '@/services/authService';
 
 interface SubdomainAuthProps {
   initialSubdomain?: SubdomainId;
@@ -211,10 +211,42 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
+  const getCurrentSubdomainFromUrl = (): SubdomainId => {
+    if (typeof window === 'undefined') return 'main';
+    const host = window.location.hostname;
+    if (host.includes('localhost')) {
+      return host === 'localhost' ? 'main' : (host.split('.')[0] as SubdomainId);
+    }
+    const parts = host.split('.');
+    if (parts.length > 2) {
+      return parts[0] as SubdomainId;
+    }
+    return 'main';
+  };
+
+  const handleReturnHome = () => {
+    const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+    const isRoot = isLocal ? window.location.hostname === 'localhost' : window.location.hostname.startsWith('zynocs.com');
+    if (!isRoot) {
+      window.location.href = getRootDomainUrl();
+    } else {
+      onNavigate(Section.Home);
+    }
+  };
+
   const handleSubdomainChange = (subId: SubdomainId) => {
     setActiveSubdomain(subId);
     setAuthMode('signin');
     setErrorMessage('');
+
+    const currentSub = getCurrentSubdomainFromUrl();
+    if (currentSub !== subId) {
+      const session = authService.getCurrentSession();
+      const token = (session && session.subdomain.startsWith(subId)) ? session.token : undefined;
+      window.location.href = buildSubdomainUrl(subId, token);
+      return;
+    }
+
     const session = authService.getCurrentSession();
     if (session && session.subdomain.startsWith(subId)) {
       setAuthenticatedUser(session);
@@ -234,6 +266,13 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
         setErrorMessage(res.error || 'Authentication failed. Please verify credentials.');
         return;
       }
+
+      const currentSub = getCurrentSubdomainFromUrl();
+      if (currentSub !== activeSubdomain) {
+        window.location.href = buildSubdomainUrl(activeSubdomain, res.user.token);
+        return;
+      }
+
       setAuthenticatedUser(res.user);
     } catch (err: any) {
       setErrorMessage(err?.message || 'Login failed. Please verify credentials.');
@@ -260,6 +299,13 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
         setErrorMessage(res.error || 'Registration failed.');
         return;
       }
+
+      const currentSub = getCurrentSubdomainFromUrl();
+      if (currentSub !== activeSubdomain) {
+        window.location.href = buildSubdomainUrl(activeSubdomain, res.user.token);
+        return;
+      }
+
       setAuthenticatedUser(res.user);
     } catch (err: any) {
       setErrorMessage(err?.message || 'Activation failed.');
@@ -279,9 +325,15 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       const res = await authService.authenticateFido2(activeSubdomain);
       setPasskeyScanning(false);
       if (res.success && res.user) {
+        const user = res.user;
         setTimeout(() => {
           setPasskeyModalOpen(false);
-          setAuthenticatedUser(res.user);
+          const currentSub = getCurrentSubdomainFromUrl();
+          if (currentSub !== activeSubdomain) {
+            window.location.href = buildSubdomainUrl(activeSubdomain, user.token);
+            return;
+          }
+          setAuthenticatedUser(user);
         }, 500);
       } else {
         setPasskeyModalOpen(false);
@@ -341,7 +393,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
         <div className="mb-5 space-y-2.5">
           <div className="flex items-center justify-between text-xs">
             <button
-              onClick={() => onNavigate(Section.Home)}
+              onClick={handleReturnHome}
               className="inline-flex items-center text-xs font-semibold text-slate-400 hover:text-white transition-colors gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800"
             >
               <ChevronRight className="w-3.5 h-3.5 rotate-180" />

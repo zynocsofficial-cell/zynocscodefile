@@ -381,6 +381,51 @@ class AuthService {
     return null;
   }
 
+  restoreFromToken(token: string): AuthUser | null {
+    try {
+      if (!token || !token.startsWith('ZYN-JWT.')) return null;
+      const parts = token.split('.');
+      if (parts.length < 3) return null;
+      const payloadStr = atob(parts[1]);
+      const payload = JSON.parse(payloadStr);
+      if (!payload.sub) return null;
+
+      const email = payload.sub;
+      const account = ENTERPRISE_DIRECTORY[email];
+      const subId = payload.subdomain || 'directors';
+
+      if (account) {
+        const clearance = account.subdomains[subId] || account.subdomains[Object.keys(account.subdomains)[0]] || { role: 'USER', department: 'General' };
+        const user: AuthUser = {
+          id: account.id,
+          name: account.name,
+          email: email,
+          role: clearance.role,
+          subdomain: `${subId}.zynocs.com`,
+          department: clearance.department,
+          token
+        };
+        this.saveSession(user);
+        return user;
+      } else {
+        // Fallback user from token payload
+        const user: AuthUser = {
+          id: `usr-${Date.now()}`,
+          name: email.split('@')[0],
+          email: email,
+          role: subId.toUpperCase(),
+          subdomain: `${subId}.zynocs.com`,
+          token
+        };
+        this.saveSession(user);
+        return user;
+      }
+    } catch (e) {
+      console.error('Failed to restore session from token:', e);
+    }
+    return null;
+  }
+
   saveSession(user: AuthUser): void {
     try {
       localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(user));
@@ -413,5 +458,37 @@ class AuthService {
     return `ZYN-JWT.${header}.${payload}.${sig}`;
   }
 }
+
+export const buildSubdomainUrl = (subdomain: SubdomainId, token?: string): string => {
+  if (typeof window === 'undefined') return '/';
+  const isLocal = window.location.hostname.includes('localhost');
+  const port = window.location.port ? `:${window.location.port}` : '';
+  const protocol = window.location.protocol || 'http:';
+
+  let host = '';
+  if (isLocal) {
+    host = subdomain === 'main' ? `localhost${port}` : `${subdomain}.localhost${port}`;
+  } else {
+    const parts = window.location.hostname.split('.');
+    const rootDomain = parts.length > 1 ? parts.slice(-2).join('.') : 'zynocs.com';
+    host = subdomain === 'main' ? rootDomain : `${subdomain}.${rootDomain}`;
+  }
+
+  const query = token ? `?auth_token=${encodeURIComponent(token)}` : '';
+  return `${protocol}//${host}/${query}`;
+};
+
+export const getRootDomainUrl = (): string => {
+  if (typeof window === 'undefined') return '/';
+  const isLocal = window.location.hostname.includes('localhost');
+  const port = window.location.port ? `:${window.location.port}` : '';
+  const protocol = window.location.protocol || 'http:';
+  if (isLocal) {
+    return `${protocol}//localhost${port}/`;
+  }
+  const parts = window.location.hostname.split('.');
+  const rootDomain = parts.length > 1 ? parts.slice(-2).join('.') : 'zynocs.com';
+  return `${protocol}//${rootDomain}/`;
+};
 
 export const authService = new AuthService();

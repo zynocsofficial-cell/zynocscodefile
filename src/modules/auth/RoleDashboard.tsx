@@ -32,6 +32,7 @@ import {
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
 import { Section, SubdomainId } from '@/types';
 import { Logo } from '@/components/common/Logo';
+import { getRootDomainUrl } from '@/services/authService';
 
 interface RoleDashboardProps {
   user: {
@@ -261,8 +262,16 @@ export const RoleDashboard: React.FC<RoleDashboardProps> = ({
 
           <div className="flex items-center gap-3 shrink-0">
             <button
-              onClick={() => onNavigate(Section.Home)}
-              className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all flex items-center gap-2"
+              onClick={() => {
+                const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
+                const isRoot = isLocal ? window.location.hostname === 'localhost' : window.location.hostname.startsWith('zynocs.com');
+                if (!isRoot) {
+                  window.location.href = getRootDomainUrl();
+                } else {
+                  onNavigate(Section.Home);
+                }
+              }}
+              className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all flex items-center gap-2 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Public Website</span>
