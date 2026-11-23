@@ -239,12 +239,15 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
     setAuthMode('signin');
     setErrorMessage('');
 
-    const currentSub = getCurrentSubdomainFromUrl();
-    if (currentSub !== subId) {
-      const session = authService.getCurrentSession();
-      const token = (session && session.subdomain.startsWith(subId)) ? session.token : undefined;
-      window.location.href = buildSubdomainUrl(subId, token);
-      return;
+    // Smoothly update URL query param in address bar without full page reload
+    if (typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('portal', subId);
+        window.history.replaceState({}, '', url.toString());
+      } catch (e) {
+        // Ignore
+      }
     }
 
     const session = authService.getCurrentSession();

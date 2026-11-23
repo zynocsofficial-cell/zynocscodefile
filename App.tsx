@@ -29,7 +29,6 @@ export const App: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
   const [selectedBlog, setSelectedBlog] = useState<BlogPostItem | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [authenticatedUser, setAuthenticatedUser] = useState<any | null>(null);
 
   // Subdomain & Portal Route Ingestion
@@ -68,14 +67,6 @@ export const App: React.FC = () => {
     } catch (e) {
       // Fallback
     }
-  }, []);
-
-  // Preloader Logic
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
   }, []);
 
   const handleNavigate = (section: Section, subdomain?: SubdomainId) => {
@@ -214,27 +205,6 @@ export const App: React.FC = () => {
         return <Hero onNavigate={handleNavigate} />;
     }
   };
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-slate-950 z-[9999] flex flex-col items-center justify-center">
-        <div className="animate-pulse mb-8">
-          <Logo className="h-20 w-20" withText={false} />
-        </div>
-        <div className="w-48 h-1 bg-slate-800 rounded-full overflow-hidden">
-          <div className="h-full bg-brand-500 animate-[loading_2s_ease-in-out_infinite]" style={{ width: '100%' }}></div>
-        </div>
-        <div className="mt-4 text-brand-400 font-mono text-sm animate-pulse">INITIALIZING SYSTEM...</div>
-        <style>{`
-          @keyframes loading {
-            0% { transform: translateX(-100%); }
-            50% { transform: translateX(0%); }
-            100% { transform: translateX(100%); }
-          }
-        `}</style>
-      </div>
-    );
-  }
 
   const isDashboardActive = activeSection === Section.Auth && Boolean(authenticatedUser);
 
