@@ -213,7 +213,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
               <div className="flex flex-col sm:flex-row gap-3.5 sm:gap-4">
                 <button
                   onClick={() => onNavigate(Section.Contact)}
-                  className="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl bg-gradient-to-r from-brand-600 to-accent-600 text-white font-bold text-base sm:text-lg shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all hover:-translate-y-1 flex items-center justify-center group"
+                  className="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-base sm:text-lg shadow-lg shadow-brand-900/50 transition-all hover:-translate-y-1 flex items-center justify-center ring-2 ring-transparent hover:ring-brand-400/50 group"
                 >
                   Start Project
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

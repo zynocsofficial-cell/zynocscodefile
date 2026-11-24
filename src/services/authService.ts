@@ -40,7 +40,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '11111111-1111-1111-1111-111111111111',
     name: 'Mohammed Khaja Moinuddin',
     passwordHash: 'Zynocs@2026!',
-    allowedPasswords: ['Zynocs@2026!', 'Director@2026!', 'zynocs123', 'admin123'],
+    allowedPasswords: ['Zynocs@2026!', 'Director@2026!'],
     subdomains: {
       directors: { role: 'CHAIRPERSON_FOUNDER', department: 'Executive Board', status: 'ACTIVE' },
       work: { role: 'DIRECTOR', department: 'Executive Board', status: 'ACTIVE' },
@@ -51,7 +51,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '11111111-1111-1111-1111-111111111111',
     name: 'Mohammed Khaja Moinuddin',
     passwordHash: 'Zynocs@2026!',
-    allowedPasswords: ['Zynocs@2026!', 'Director@2026!', 'zynocs123', 'admin123'],
+    allowedPasswords: ['Zynocs@2026!', 'Director@2026!'],
     subdomains: {
       directors: { role: 'CHAIRPERSON_FOUNDER', department: 'Executive Board', status: 'ACTIVE' },
       work: { role: 'DIRECTOR', department: 'Executive Board', status: 'ACTIVE' },
@@ -62,7 +62,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '22222222-2222-2222-2222-222222222222',
     name: 'Yousuf Mohammed Jaleel',
     passwordHash: 'Zynocs@2026!',
-    allowedPasswords: ['Zynocs@2026!', 'Ceo@2026!', 'zynocs123'],
+    allowedPasswords: ['Zynocs@2026!', 'Ceo@2026!'],
     subdomains: {
       directors: { role: 'CEO', department: 'Executive Board', status: 'ACTIVE' },
       work: { role: 'CEO', department: 'Executive Board', status: 'ACTIVE' },
@@ -75,7 +75,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '33333333-3333-3333-3333-333333333333',
     name: 'Sarah Jenkins (CTO, Apex Capital)',
     passwordHash: 'Client@2026!',
-    allowedPasswords: ['Client@2026!', 'Apex@2026!', 'zynocs123'],
+    allowedPasswords: ['Client@2026!', 'Apex@2026!'],
     subdomains: {
       client: { role: 'CLIENT_ENTERPRISE_EXECUTIVE', department: 'Apex Capital', status: 'ACTIVE' },
       main: { role: 'CLIENT', department: 'Apex Capital', status: 'ACTIVE' }
@@ -85,7 +85,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '33333333-3333-3333-3333-333333333334',
     name: 'Enterprise Client Account',
     passwordHash: 'Client@2026!',
-    allowedPasswords: ['Client@2026!', 'zynocs123'],
+    allowedPasswords: ['Client@2026!'],
     subdomains: {
       client: { role: 'CLIENT_ENTERPRISE_EXECUTIVE', department: 'Enterprise Client', status: 'ACTIVE' },
       main: { role: 'CLIENT', department: 'Enterprise Client', status: 'ACTIVE' }
@@ -97,7 +97,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '44444444-4444-4444-4444-444444444441',
     name: 'Aarav Sharma (Staff Systems Architect)',
     passwordHash: 'Engineer@2026!',
-    allowedPasswords: ['Engineer@2026!', 'Work@2026!', 'zynocs123'],
+    allowedPasswords: ['Engineer@2026!', 'Work@2026!'],
     subdomains: {
       work: { role: 'STAFF_SYSTEMS_ENGINEER', department: 'Engineering & Cloud Architecture', status: 'ACTIVE' },
       main: { role: 'STAFF', department: 'Engineering', status: 'ACTIVE' }
@@ -107,7 +107,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '44444444-4444-4444-4444-444444444442',
     name: 'Sara Khan (VP People Operations)',
     passwordHash: 'People@2026!',
-    allowedPasswords: ['People@2026!', 'Work@2026!', 'zynocs123'],
+    allowedPasswords: ['People@2026!', 'Work@2026!'],
     subdomains: {
       work: { role: 'VP_PEOPLE_OPS', department: 'Human Resources & Talent', status: 'ACTIVE' },
       main: { role: 'STAFF', department: 'Human Resources', status: 'ACTIVE' }
@@ -117,7 +117,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '44444444-4444-4444-4444-444444444443',
     name: 'Ananya Roy (Head of Finance & Treasury)',
     passwordHash: 'Finance@2026!',
-    allowedPasswords: ['Finance@2026!', 'Work@2026!', 'zynocs123'],
+    allowedPasswords: ['Finance@2026!', 'Work@2026!'],
     subdomains: {
       work: { role: 'CHIEF_ACCOUNTANT', department: 'Finance & Treasury', status: 'ACTIVE' },
       main: { role: 'STAFF', department: 'Finance', status: 'ACTIVE' }
@@ -127,7 +127,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '44444444-4444-4444-4444-444444444444',
     name: 'Michael Chen (Agile Delivery Lead)',
     passwordHash: 'Project@2026!',
-    allowedPasswords: ['Project@2026!', 'Work@2026!', 'zynocs123'],
+    allowedPasswords: ['Project@2026!', 'Work@2026!'],
     subdomains: {
       work: { role: 'PRINCIPAL_PROJECT_MANAGER', department: 'Product & Agile Execution', status: 'ACTIVE' },
       main: { role: 'STAFF', department: 'Product', status: 'ACTIVE' }
@@ -139,7 +139,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '55555555-5555-5555-5555-555555555551',
     name: 'David Miller (TechCloud Global)',
     passwordHash: 'Sponsor@2026!',
-    allowedPasswords: ['Sponsor@2026!', 'TechCloud@2026!', 'zynocs123'],
+    allowedPasswords: ['Sponsor@2026!', 'TechCloud@2026!'],
     subdomains: {
       sponsors: { role: 'SPONSOR_DIRECTOR', department: 'Brand Partnerships', status: 'ACTIVE' },
       main: { role: 'SPONSOR', department: 'Brand Partnerships', status: 'ACTIVE' }
@@ -151,7 +151,7 @@ const ENTERPRISE_DIRECTORY: Record<string, {
     id: '66666666-6666-6666-6666-666666666661',
     name: 'Elena Rostova (AdOps Lead)',
     passwordHash: 'AdOps@2026!',
-    allowedPasswords: ['AdOps@2026!', 'Operator@2026!', 'zynocs123'],
+    allowedPasswords: ['AdOps@2026!', 'Operator@2026!'],
     subdomains: {
       ads: { role: 'ADOPS_OPERATOR', department: 'AdOps Infrastructure', status: 'ACTIVE' },
       main: { role: 'OPERATOR', department: 'AdTech', status: 'ACTIVE' }

@@ -32,6 +32,40 @@ export const App: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [authenticatedUser, setAuthenticatedUser] = useState<any | null>(null);
 
+  // Preloader only once on public website initial entry
+  const [loading, setLoading] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const alreadyPreloaded = sessionStorage.getItem('zynocs_preloaded');
+      const params = new URLSearchParams(window.location.search);
+      const isPortal = params.has('portal') || params.has('subdomain') || params.has('auth_token') || params.has('token');
+      const host = window.location.hostname;
+      const isSubdomain = host.includes('.') && !host.endsWith('.vercel.app') && host !== 'localhost' && !host.startsWith('www.');
+
+      // If already shown in this session, or accessing a portal/subdomain directly, skip preloader
+      if (alreadyPreloaded || isPortal || isSubdomain) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+        try {
+          sessionStorage.setItem('zynocs_preloaded', 'true');
+        } catch (e) {
+          // Ignore
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
   // Subdomain & Portal Route Ingestion
   useEffect(() => {
     try {
@@ -140,7 +174,6 @@ export const App: React.FC = () => {
             <Hero onNavigate={handleNavigate} />
             <Portfolio onSelectProject={handleSelectProject} />
             <Services onNavigate={handleNavigate} />
-            <AdPlacements onNavigate={handleNavigate} />
             <Insights onSelectBlog={handleSelectBlog} isStandalonePage={false} />
             <Testimonials />
             <CallToAction onNavigate={handleNavigate} />
@@ -225,6 +258,27 @@ export const App: React.FC = () => {
         return <Hero onNavigate={handleNavigate} />;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-[#020617] z-[9999] flex flex-col items-center justify-center">
+        <div className="animate-pulse mb-8">
+          <Logo className="h-20 w-20" withText={false} />
+        </div>
+        <div className="w-48 h-1 bg-slate-800 rounded-full overflow-hidden">
+          <div className="h-full bg-brand-500 animate-[loading_2s_ease-in-out_infinite]" style={{ width: '100%' }}></div>
+        </div>
+        <div className="mt-4 text-brand-400 font-mono text-sm animate-pulse">INITIALIZING SYSTEM...</div>
+        <style>{`
+          @keyframes loading {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(0%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   const isDashboardActive = activeSection === Section.Auth && Boolean(authenticatedUser);
 

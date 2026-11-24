@@ -852,12 +852,12 @@ export const Directors: React.FC<DirectorsProps> = ({
                 </p>
               </div>
 
-              {/* Demo Notice Banner */}
+              {/* Live Governance Notice Banner */}
               <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 text-xs text-slate-300 flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-2.5">
                   <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
                   <span>
-                    <strong className="text-white">Director Boardroom (Demo Mode):</strong> You are authenticated via live PostgreSQL database. Governance voting and invite key creation are functional below.
+                    <strong className="text-white">Director Boardroom:</strong> Authenticated via live PostgreSQL enterprise database. Real-time governance voting, IAM access management, and directory operations active.
                   </span>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[11px] font-mono">

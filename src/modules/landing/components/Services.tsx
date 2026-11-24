@@ -460,7 +460,7 @@ export const Services: React.FC<ServicesProps> = ({ onNavigate }) => {
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
                 onClick={() => handleConsultService(selectedService.title)}
-                className="flex-1 py-3 px-5 sm:py-3.5 sm:px-6 rounded-xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold text-sm shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center group"
+                className="flex-1 py-3 px-5 sm:py-3.5 sm:px-6 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-lg shadow-brand-900/50 transition-all flex items-center justify-center group ring-2 ring-transparent hover:ring-brand-400/50"
               >
                 Consult on {selectedService.title}
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -571,7 +571,7 @@ export const Services: React.FC<ServicesProps> = ({ onNavigate }) => {
                   setSelectedProcessStep(null);
                   if (onNavigate) onNavigate(Section.Contact);
                 }}
-                className="flex-1 py-3 px-5 sm:py-3.5 sm:px-6 rounded-xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold text-sm shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center group"
+                className="flex-1 py-3 px-5 sm:py-3.5 sm:px-6 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm shadow-lg shadow-brand-900/50 transition-all flex items-center justify-center group ring-2 ring-transparent hover:ring-brand-400/50"
               >
                 Start Project with {selectedProcessStep.title}
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />

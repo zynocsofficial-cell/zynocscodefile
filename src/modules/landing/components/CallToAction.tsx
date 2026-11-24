@@ -23,7 +23,7 @@ export const CallToAction: React.FC<CallToActionProps> = ({ onNavigate }) => {
 
         {/* Headline */}
         <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight mb-6 leading-[1.12]">
-          Ready to <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-accent-400 to-indigo-400">Digitalize</span> Your Business?
+          Ready to <span className="text-brand-400">Digitalize</span> Your Business?
         </h2>
 
         {/* Subtitle */}
@@ -35,7 +35,7 @@ export const CallToAction: React.FC<CallToActionProps> = ({ onNavigate }) => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
           <button
             onClick={() => onNavigate(Section.Contact)}
-            className="w-full sm:w-auto px-9 py-4 rounded-full bg-gradient-to-r from-brand-600 via-brand-500 to-accent-600 hover:from-brand-500 hover:to-accent-500 text-white font-bold text-base shadow-xl shadow-brand-500/30 hover:scale-105 transition-all duration-300 flex items-center justify-center group"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold text-base transition-all transform hover:scale-105 shadow-lg shadow-brand-900/50 flex items-center justify-center ring-2 ring-transparent hover:ring-brand-400/50 group"
           >
             Schedule a Consultation
             <ArrowRight className="ml-2.5 h-4 w-4 group-hover:translate-x-1 transition-transform" />

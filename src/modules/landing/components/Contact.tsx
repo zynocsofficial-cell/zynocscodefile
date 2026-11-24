@@ -365,7 +365,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                     {onNavigate && (
                       <button
                         onClick={() => onNavigate(Section.Home)}
-                        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-accent-600 text-white font-semibold text-xs hover:shadow-lg hover:shadow-brand-500/25 transition-all"
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-md shadow-brand-900/40 transition-all"
                       >
                         Explore Services
                       </button>
@@ -539,7 +539,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                   <button
                     type="submit"
                     disabled={formState === 'submitting'}
-                    className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-600 via-accent-600 to-purple-600 hover:from-brand-500 hover:via-accent-500 hover:to-purple-500 text-white font-bold text-sm shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50"
+                    className="w-full py-4 px-6 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-xl shadow-brand-900/50 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 ring-2 ring-transparent hover:ring-brand-400/50"
                   >
                     {formState === 'submitting' ? (
                       <>

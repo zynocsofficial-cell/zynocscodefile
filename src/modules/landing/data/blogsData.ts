@@ -39,8 +39,8 @@ export const blogsData: BlogPostItem[] = [
     excerpt: 'How we migrated a Fortune 500 financial institution from a monolithic mainframe to a microservices mesh using Kubernetes and Rust, reducing transaction latency by 94%.',
     category: 'Cloud Engineering',
     author: {
-      name: 'Alexander Zaine',
-      role: 'Principal Systems Architect',
+      name: 'Mohammed Khaja Moinuddin',
+      role: 'Founder & Principal Systems Architect',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200&h=200'
     },
     date: 'Oct 12, 2024',
@@ -105,9 +105,9 @@ pub async fn process_settlement(
     excerpt: 'Exploring practical use cases for LLMs in supply chain optimization, automated document parsing, and predictive maintenance.',
     category: 'Artificial Intelligence',
     author: {
-      name: 'Sarah Lin',
-      role: 'Head of AI Research',
-      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200&h=200'
+      name: 'Yousuf Mohammed Jaleel',
+      role: 'CEO & Head of Technology',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200'
     },
     date: 'Oct 08, 2024',
     readTime: '5 min read',
@@ -146,9 +146,9 @@ pub async fn process_settlement(
     excerpt: 'Implementing strict identity verification and least-privilege access without hindering developer productivity.',
     category: 'Security',
     author: {
-      name: 'Marcus Vance',
-      role: 'Chief Information Security Officer',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200'
+      name: 'Mohammed Khaja Moinuddin',
+      role: 'Founder & Principal Systems Architect',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200&h=200'
     },
     date: 'Sep 29, 2024',
     readTime: '6 min read',
@@ -187,9 +187,9 @@ pub async fn process_settlement(
     excerpt: 'Debunking the "native is faster" myth with benchmark data from our latest institutional trading mobile platform.',
     category: 'FinTech',
     author: {
-      name: 'Elena Rostova',
-      role: 'Lead Mobile Systems Engineer',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200'
+      name: 'Yousuf Mohammed Jaleel',
+      role: 'CEO & Head of Technology',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200'
     },
     date: 'Sep 15, 2024',
     readTime: '7 min read',
@@ -239,9 +239,9 @@ export function onWebSocketTick(payload: ArrayBuffer) {
     excerpt: 'Building custom domain routing, isolated schema databases, and sub-50ms TTFB across worldwide client instances.',
     category: 'Cloud Engineering',
     author: {
-      name: 'David Chen',
-      role: 'VP of Platform Engineering',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200'
+      name: 'Mohammed Khaja Moinuddin',
+      role: 'Founder & Principal Systems Architect',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200&h=200'
     },
     date: 'Aug 28, 2024',
     readTime: '6 min read',
@@ -280,9 +280,9 @@ export function onWebSocketTick(payload: ArrayBuffer) {
     excerpt: 'Ingesting 100,000 events per second and executing sub-second aggregate queries on billions of telemetry rows.',
     category: 'FinTech',
     author: {
-      name: 'Tariq Al-Mansoor',
-      role: 'Principal Data Architect',
-      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200&h=200'
+      name: 'Yousuf Mohammed Jaleel',
+      role: 'CEO & Head of Technology',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200'
     },
     date: 'Aug 14, 2024',
     readTime: '9 min read',
