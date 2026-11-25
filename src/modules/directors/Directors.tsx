@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Shield,
   Lock,
@@ -48,7 +48,9 @@ import {
   Megaphone,
   CalendarDays,
   Settings,
-  User
+  User,
+  Edit3,
+  Trash2
 } from 'lucide-react';
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
 import { Section, SubdomainId } from '@/types';
@@ -63,6 +65,7 @@ import { AccessControlApp } from './apps/AccessControlApp';
 import { TasksApp } from './apps/TasksApp';
 import { AccountsApp } from './apps/AccountsApp';
 import { CodeReposApp } from './apps/CodeReposApp';
+import { EmployeesApp } from './apps/EmployeesApp';
 import { getRootDomainUrl } from '@/services/authService';
 import { MeetingsCalendarApp } from './apps/MeetingsCalendarApp';
 import { DirectorProfileSettings } from './profile/DirectorProfileSettings';
@@ -96,7 +99,8 @@ export type AppId =
   | 'access_control' 
   | 'tasks' 
   | 'accounts' 
-  | 'code_repos';
+  | 'code_repos'
+  | 'employees';
 
 interface AppMeta {
   id: AppId;
@@ -273,29 +277,132 @@ export const Directors: React.FC<DirectorsProps> = ({
     setVotedResolutions(prev => ({ ...prev, [resId]: choice }));
   };
 
-  const kpis = [
-    { label: 'Enterprise Valuation', value: '$18.5M', change: '+24% YoY', icon: TrendingUp, color: 'text-cyan-400' },
-    { label: 'Annual Revenue Run Rate', value: '$3.8M', change: '115% of Target', icon: DollarSign, color: 'text-emerald-400' },
-    { label: 'Operating Cash Runway', value: '28 Months', change: 'Zero Debt Load', icon: Clock, color: 'text-brand-400' },
-    { label: 'Active Enterprise Contracts', value: '14 Accounts', change: '98% Retention', icon: Building2, color: 'text-purple-400' },
-  ];
+  // Live Boardroom Telemetry dynamically calculated from CRM & Accounts Ledger
+  const [crmDeals, setCrmDeals] = useState<Array<{ amount: number; stage: string }>>(() => {
+    try {
+      const saved = localStorage.getItem('zynocs_crm_pipeline_v6');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
-  const boardResolutions = [
+  const [ledgerEntries, setLedgerEntries] = useState<Array<{ amount: number; type: 'Inflow' | 'Outflow' }>>(() => {
+    try {
+      const saved = localStorage.getItem('zynocs_accounts_ledger_v6');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    const refreshData = () => {
+      try {
+        const savedCrm = localStorage.getItem('zynocs_crm_pipeline_v6');
+        if (savedCrm) setCrmDeals(JSON.parse(savedCrm));
+        const savedLedger = localStorage.getItem('zynocs_accounts_ledger_v6');
+        if (savedLedger) setLedgerEntries(JSON.parse(savedLedger));
+      } catch {}
+    };
+    window.addEventListener('storage', refreshData);
+    refreshData();
+    return () => window.removeEventListener('storage', refreshData);
+  }, [activeTab]);
+
+  const totalPipeline = crmDeals
+    .filter(d => d.stage !== 'Lost')
+    .reduce((acc, d) => acc + (Number(d.amount) * 1000 || 0), 0);
+
+  const totalInflow = ledgerEntries
+    .filter(l => l.type === 'Inflow')
+    .reduce((acc, l) => acc + (Number(l.amount) || 0), 0);
+
+  const totalOutflow = ledgerEntries
+    .filter(l => l.type === 'Outflow')
+    .reduce((acc, l) => acc + (Number(l.amount) || 0), 0);
+
+  const netReserves = totalInflow - totalOutflow;
+  const wonContracts = crmDeals.filter(d => d.stage === 'Won').length;
+
+  const boardKpis = [
     {
-      id: 'BR-2026-04',
-      title: 'Resolution #2026-04: Authorize EMEA Infrastructure Expansion',
-      summary: 'Approval to deploy redundant high-frequency Kubernetes clusters in Frankfurt and London with a CapEx allocation of $450,000.',
-      status: 'Voting In Progress',
-      sponsor: 'Yousuf Mohammed Jaleel (CEO)'
+      label: 'Client Deal Pipeline',
+      value: totalPipeline > 0 ? `$${totalPipeline.toLocaleString()}` : '$0.00',
+      change: `${crmDeals.filter(d => d.stage !== 'Lost').length} Active Opportunities`,
+      icon: TrendingUp,
+      color: 'text-cyan-400'
     },
     {
-      id: 'BR-2026-03',
-      title: 'Resolution #2026-03: Ratification of 2026 Technical Equity Incentive Pool',
-      summary: 'Adoption of 4.5% non-dilutive option pool reserved exclusively for Principal Architects and Senior Systems Engineers.',
-      status: 'Passed (Unanimous)',
-      sponsor: 'Mohammed Khaja Moinuddin (Chairperson)'
-    }
+      label: 'Realized Revenue',
+      value: totalInflow > 0 ? `$${totalInflow.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '$0.00',
+      change: `${ledgerEntries.filter(l => l.type === 'Inflow').length} Settled Inflows`,
+      icon: DollarSign,
+      color: 'text-emerald-400'
+    },
+    {
+      label: 'Treasury Net Reserves',
+      value: `$${netReserves.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      change: totalOutflow > 0 ? `-$${totalOutflow.toLocaleString()} OpEx` : 'Live Self-Funded',
+      icon: Clock,
+      color: 'text-brand-400'
+    },
+    {
+      label: 'Active Client Contracts',
+      value: `${wonContracts} Accounts`,
+      change: wonContracts > 0 ? 'Won & Executed' : 'Clean Roster',
+      icon: Building2,
+      color: 'text-purple-400'
+    },
   ];
+
+  // Executive Board Resolutions (Persisted)
+  const [boardResolutions, setBoardResolutions] = useState<Array<{
+    id: string;
+    title: string;
+    summary: string;
+    status: string;
+    sponsor: string;
+  }>>(() => {
+    const saved = localStorage.getItem('zynocs_board_resolutions_v6');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [];
+  });
+
+  const [isAddResolutionOpen, setIsAddResolutionOpen] = useState(false);
+  const [newResTitle, setNewResTitle] = useState('');
+  const [newResSponsor, setNewResSponsor] = useState('Mohammed Khaja Moinuddin (Chairperson)');
+  const [newResSummary, setNewResSummary] = useState('');
+
+  const handleProposeResolution = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newResTitle.trim()) return;
+
+    const newRes = {
+      id: `BR-2026-${Math.floor(10 + Math.random() * 90)}`,
+      title: newResTitle.trim(),
+      summary: newResSummary.trim() || 'Submitted for formal executive board approval.',
+      status: 'Voting In Progress',
+      sponsor: newResSponsor
+    };
+
+    const updated = [newRes, ...boardResolutions];
+    setBoardResolutions(updated);
+    localStorage.setItem('zynocs_board_resolutions_v6', JSON.stringify(updated));
+    setNewResTitle('');
+    setNewResSummary('');
+    setIsAddResolutionOpen(false);
+  };
+
+  const handleDeleteResolution = (resId: string) => {
+    const updated = boardResolutions.filter(r => r.id !== resId);
+    setBoardResolutions(updated);
+    localStorage.setItem('zynocs_board_resolutions_v6', JSON.stringify(updated));
+  };
 
   // Applications Catalog Configuration (Arranged as requested)
   const APPS_LIST: AppMeta[] = [
@@ -304,7 +411,7 @@ export const Directors: React.FC<DirectorsProps> = ({
       name: 'Enterprise CRM & Pipeline',
       category: 'Sales & Client Acquisition',
       description: 'Manage high-ticket enterprise client accounts, interactive drag-and-drop pipeline stages, win probabilities, and revenue forecasting.',
-      badge: '$1.45M Pipeline',
+      badge: 'Active CRM',
       badgeColor: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30',
       icon: Users,
       iconColor: 'text-emerald-400',
@@ -344,6 +451,17 @@ export const Directors: React.FC<DirectorsProps> = ({
       iconBg: 'bg-blue-950/50 border-blue-500/30 shadow-blue-500/10'
     },
     {
+      id: 'employees',
+      name: 'Employees & Workforce Directory',
+      category: 'Human Resources & Personnel',
+      description: 'Manage staff profiles, department assignments, compensation tiers, and workforce employment status.',
+      badge: 'Workforce Roster',
+      badgeColor: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30',
+      icon: Users,
+      iconColor: 'text-emerald-400',
+      iconBg: 'bg-emerald-950/50 border-emerald-500/30 shadow-emerald-500/10'
+    },
+    {
       id: 'access_control',
       name: 'Access Control & IAM Security',
       category: 'Security & User Clearance',
@@ -359,7 +477,7 @@ export const Directors: React.FC<DirectorsProps> = ({
       name: 'Help Desk & Support Escalations',
       category: 'Client Support & Incidents',
       description: 'Incident dispatch, SLA response monitoring, client escalation tickets, and infrastructure resolution tracking.',
-      badge: '99.8% SLA',
+      badge: 'Support Desk',
       badgeColor: 'bg-rose-950/60 text-rose-400 border-rose-500/30',
       icon: LifeBuoy,
       iconColor: 'text-rose-400',
@@ -392,7 +510,7 @@ export const Directors: React.FC<DirectorsProps> = ({
       name: 'Corporate Accounts & Treasury',
       category: 'Finance & Ledger',
       description: 'Cash flow telemetry, accounts receivable, client ACH billing, vendor CapEx payments, and tax audit readiness.',
-      badge: '$8.42M Cash',
+      badge: 'Treasury Ledger',
       badgeColor: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30',
       icon: Receipt,
       iconColor: 'text-emerald-400',
@@ -842,47 +960,40 @@ export const Directors: React.FC<DirectorsProps> = ({
           {activeTab === 'dashboard' && (
             <div className="space-y-8 animate-fade-in-up">
               
-              {/* Dashboard Title & Demo Notice */}
+              {/* Dashboard Title & Welcome Greeting */}
               <div className="space-y-1">
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Executive Boardroom Governance Panel
+                  Welcome back, {user.name}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-400">
-                  Logged in as <strong className="text-white">{user.name}</strong> ({user.email}) • Subdomain: <span className="font-mono text-cyan-300">directors.zynocs.com</span>
+                  Executive Boardroom Governance • Subdomain: <span className="font-mono text-cyan-300">directors.zynocs.com</span>
                 </p>
               </div>
 
-              {/* Live Governance Notice Banner */}
-              <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 text-xs text-slate-300 flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
-                  <span>
-                    <strong className="text-white">Director Boardroom:</strong> Authenticated via live PostgreSQL enterprise database. Real-time governance voting, IAM access management, and directory operations active.
-                  </span>
-                </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[11px] font-mono">
-                  Node: zynocs_enterprise
-                </span>
-              </div>
-
               {/* Executive KPI Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {kpis.map((kpi, idx) => (
-                  <SpotlightCard
-                    key={idx}
-                    spotlightColor="rgba(6, 182, 212, 0.15)"
-                    className="p-5 sm:p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-400 font-semibold">{kpi.label}</span>
-                      <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-black text-white font-mono">{kpi.value}</h3>
-                      <span className="text-[11px] font-mono text-emerald-400 font-semibold">{kpi.change}</span>
-                    </div>
-                  </SpotlightCard>
-                ))}
+              <div className="space-y-3">
+                <span className="text-xs font-mono uppercase text-slate-400 tracking-wider font-bold block">
+                  Executive Performance & Capital Telemetry
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {boardKpis.map((kpi, idx) => (
+                    <SpotlightCard
+                      key={idx}
+                      spotlightColor="rgba(6, 182, 212, 0.15)"
+                      className="p-5 sm:p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-400 font-semibold">{kpi.label}</span>
+                        <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-black text-white font-mono">{kpi.value}</h3>
+                        <span className="text-[11px] font-mono text-emerald-400 font-semibold">{kpi.change}</span>
+                      </div>
+                    </SpotlightCard>
+                  ))}
+                </div>
               </div>
 
               {/* Two-Column Governance Layout */}
@@ -892,7 +1003,7 @@ export const Directors: React.FC<DirectorsProps> = ({
                 <div className="lg:col-span-7 space-y-6">
                   <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-6">
                     
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-4 gap-4 flex-wrap">
                       <div>
                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
                           <Vote className="w-5 h-5 text-cyan-400" />
@@ -902,69 +1013,106 @@ export const Directors: React.FC<DirectorsProps> = ({
                           Formal matters submitted for executive board approval.
                         </p>
                       </div>
-                      <span className="text-xs font-mono text-slate-500">2 Active</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono text-slate-500 hidden sm:inline">
+                          {boardResolutions.length} Active
+                        </span>
+                        <button
+                          onClick={() => setIsAddResolutionOpen(true)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-md shadow-cyan-500/20"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Propose Resolution</span>
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="space-y-4">
-                      {boardResolutions.map((res) => {
-                        const currentVote = votedResolutions[res.id];
-                        return (
-                          <div 
-                            key={res.id}
-                            className="p-5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4 hover:border-slate-700 transition-all"
-                          >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                              <div>
-                                <span className="text-xs font-mono text-slate-500 block mb-0.5">Sponsor: {res.sponsor}</span>
-                                <h4 className="text-sm font-bold text-white">{res.title}</h4>
+                    {boardResolutions.length === 0 ? (
+                      <div className="p-8 text-center rounded-2xl bg-slate-950/60 border border-dashed border-slate-800 space-y-3">
+                        <Vote className="w-8 h-8 text-slate-600 mx-auto" />
+                        <h4 className="text-sm font-bold text-slate-300">Board Governance Panel is 100% Clean</h4>
+                        <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                          No pending dummy resolutions remain. Click &quot;+ Propose Resolution&quot; to submit a formal corporate resolution for voting.
+                        </p>
+                        <button
+                          onClick={() => setIsAddResolutionOpen(true)}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Propose First Resolution</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {boardResolutions.map((res) => {
+                          const currentVote = votedResolutions[res.id];
+                          return (
+                            <div 
+                              key={res.id}
+                              className="p-5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4 hover:border-slate-700 transition-all"
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div>
+                                  <span className="text-xs font-mono text-slate-500 block mb-0.5">Sponsor: {res.sponsor}</span>
+                                  <h4 className="text-sm font-bold text-white">{res.title}</h4>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 self-start sm:self-auto shrink-0">
+                                    {res.status}
+                                  </span>
+                                  <button
+                                    onClick={() => handleDeleteResolution(res.id)}
+                                    className="p-1 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-900 transition-colors"
+                                    title="Delete resolution"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                               </div>
-                              <span className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 self-start sm:self-auto shrink-0">
-                                {res.status}
-                              </span>
-                            </div>
 
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                              {res.summary}
-                            </p>
+                              <p className="text-xs text-slate-400 leading-relaxed">
+                                {res.summary}
+                              </p>
 
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
-                              <span className="text-xs font-mono text-slate-400">
-                                Your Vote: {currentVote ? (
-                                  <strong className={currentVote === 'Approved' ? 'text-emerald-400' : 'text-red-400'}>
-                                    {currentVote} (Cast)
-                                  </strong>
-                                ) : (
-                                  <span className="text-slate-500">Pending Cast</span>
-                                )}
-                              </span>
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
+                                <span className="text-xs font-mono text-slate-400">
+                                  Your Vote: {currentVote ? (
+                                    <strong className={currentVote === 'Approved' ? 'text-emerald-400' : 'text-red-400'}>
+                                      {currentVote} (Cast)
+                                    </strong>
+                                  ) : (
+                                    <span className="text-slate-500">Pending Cast</span>
+                                  )}
+                                </span>
 
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => handleVote(res.id, 'Approved')}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                                    currentVote === 'Approved'
-                                      ? 'bg-emerald-500 text-slate-950 font-bold'
-                                      : 'bg-slate-900 hover:bg-emerald-950/50 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40'
-                                  }`}
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleVote(res.id, 'Dissented')}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                                    currentVote === 'Dissented'
-                                      ? 'bg-red-500 text-white font-bold'
-                                      : 'bg-slate-900 hover:bg-red-950/50 text-slate-300 hover:text-red-300 border border-slate-800 hover:border-red-500/40'
-                                  }`}
-                                >
-                                  Dissent
-                                </button>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => handleVote(res.id, 'Approved')}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                      currentVote === 'Approved'
+                                        ? 'bg-emerald-500 text-slate-950 font-bold'
+                                        : 'bg-slate-900 hover:bg-emerald-950/50 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40'
+                                    }`}
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    onClick={() => handleVote(res.id, 'Dissented')}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                      currentVote === 'Dissented'
+                                        ? 'bg-red-500 text-white font-bold'
+                                        : 'bg-slate-900 hover:bg-red-950/50 text-slate-300 hover:text-red-300 border border-slate-800 hover:border-red-500/40'
+                                    }`}
+                                  >
+                                    Dissent
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          );
+                        })}
+                      </div>
+                    )}
 
                   </div>
                 </div>
@@ -1081,54 +1229,32 @@ export const Directors: React.FC<DirectorsProps> = ({
                 </p>
               </div>
 
-              {/* Apps Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Apps Small Icons & Names Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
                 {APPS_LIST.map((app) => (
                   <SpotlightCard
                     key={app.id}
                     onClick={() => setSelectedApp(app.id)}
-                    className="p-6 sm:p-7 rounded-3xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 hover:bg-slate-900/90 transition-all cursor-pointer group flex flex-col justify-between space-y-6"
+                    className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 hover:bg-slate-850/90 transition-all cursor-pointer group flex flex-col items-center text-center justify-between min-h-[140px] space-y-3 shadow-sm hover:shadow-cyan-500/10 hover:shadow-lg"
                   >
-                    <div className="space-y-4">
-                      {/* App Header: Big Logo + Name + Category */}
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          {/* App Logo / Big Icon Box */}
-                          <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center shrink-0 ${app.iconBg} group-hover:scale-105 transition-transform shadow-lg`}>
-                            <app.icon className={`w-7 h-7 ${app.iconColor}`} />
-                          </div>
-
-                          <div className="space-y-1">
-                            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider font-bold">
-                              {app.category}
-                            </span>
-                            <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">
-                              {app.name}
-                            </h3>
-                          </div>
-                        </div>
-
-                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold border shrink-0 ${app.badgeColor}`}>
-                          {app.badge}
-                        </span>
+                    <div className="flex flex-col items-center space-y-2.5 w-full">
+                      {/* Small Icon Box */}
+                      <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${app.iconBg} group-hover:scale-110 transition-transform shadow-md`}>
+                        <app.icon className={`w-5 h-5 ${app.iconColor}`} />
                       </div>
 
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        {app.description}
-                      </p>
-                    </div>
-
-                    {/* App Card Action Bar */}
-                    <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
-                      <span className="text-[11px] font-mono text-slate-500">
-                        Zynocs Enterprise App
-                      </span>
-
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-400 group-hover:text-cyan-300 group-hover:translate-x-1 transition-all">
-                        <span>Open Application</span>
-                        <ArrowRight className="w-4 h-4" />
+                      {/* App Name */}
+                      <div className="w-full">
+                        <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight">
+                          {app.name}
+                        </h4>
                       </div>
                     </div>
+
+                    {/* Small Badge / Category Tag */}
+                    <span className="text-[10px] font-mono text-slate-400 group-hover:text-cyan-400/90 block truncate max-w-full">
+                      {app.badge}
+                    </span>
                   </SpotlightCard>
                 ))}
               </div>
@@ -1142,33 +1268,15 @@ export const Directors: React.FC<DirectorsProps> = ({
           {activeTab === 'apps' && selectedApp !== null && (
             <div className="space-y-6 animate-fade-in-up">
               
-              {/* Back to Apps Breadcrumb Bar */}
+              {/* Back to Apps Navigation Bar */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <button
                   onClick={() => setSelectedApp(null)}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all group"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all group cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
                   <span>Back to All Apps</span>
                 </button>
-
-                {/* Direct switcher between the other apps */}
-                <div className="hidden sm:flex items-center gap-1.5">
-                  <span className="text-xs font-mono text-slate-500 mr-1">Switch:</span>
-                  {APPS_LIST.map((a) => (
-                    <button
-                      key={a.id}
-                      onClick={() => setSelectedApp(a.id)}
-                      className={`px-3 py-1 rounded-lg text-xs font-mono transition-all ${
-                        selectedApp === a.id
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                      }`}
-                    >
-                      {a.name.split(' ')[0]}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Render the Selected App */}
@@ -1179,6 +1287,7 @@ export const Directors: React.FC<DirectorsProps> = ({
               {selectedApp === 'meetings' && <MeetingsCalendarApp />}
               {selectedApp === 'links' && <ImportantLinksApp />}
               {selectedApp === 'contacts' && <ContactsApp />}
+              {selectedApp === 'employees' && <EmployeesApp />}
               {selectedApp === 'helpdesk' && <HelpDeskApp />}
               {selectedApp === 'access_control' && <AccessControlApp />}
               {selectedApp === 'tasks' && <TasksApp />}
@@ -1193,6 +1302,79 @@ export const Directors: React.FC<DirectorsProps> = ({
           {/* ========================================================================= */}
           {activeTab === 'profile' && (
             <DirectorProfileSettings user={user} onSignOut={onSignOut} />
+          )}
+
+          {/* Modal: Propose Resolution */}
+          {isAddResolutionOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+              <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 space-y-4 shadow-2xl">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Vote className="w-4 h-4 text-cyan-400" />
+                    Propose Board Resolution
+                  </h4>
+                  <button
+                    onClick={() => setIsAddResolutionOpen(false)}
+                    className="text-slate-400 hover:text-white p-1 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleProposeResolution} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1">Resolution Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newResTitle}
+                      onChange={(e) => setNewResTitle(e.target.value)}
+                      placeholder="e.g. Resolution #2026-01: Authorize Production Cloud Cluster"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1">Sponsoring Director *</label>
+                    <select
+                      value={newResSponsor}
+                      onChange={(e) => setNewResSponsor(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-cyan-500"
+                    >
+                      <option value="Mohammed Khaja Moinuddin (Chairperson)">Mohammed Khaja Moinuddin (Chairperson)</option>
+                      <option value="Yousuf Mohammed Jaleel (CEO)">Yousuf Mohammed Jaleel (CEO)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1">Summary / Matter for Approval</label>
+                    <textarea
+                      rows={3}
+                      value={newResSummary}
+                      onChange={(e) => setNewResSummary(e.target.value)}
+                      placeholder="Formal text of the matter submitted for unanimous or majority board vote..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 resize-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddResolutionOpen(false)}
+                      className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white text-xs font-semibold cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shadow-md shadow-cyan-500/20 cursor-pointer"
+                    >
+                      Submit Resolution
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           )}
 
         </div>

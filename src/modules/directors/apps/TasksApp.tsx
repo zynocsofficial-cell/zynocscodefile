@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CheckSquare, 
   Plus, 
@@ -10,9 +10,10 @@ import {
   Tag, 
   FolderKanban,
   Flame,
-  ListTodo
+  ListTodo,
+  Trash2,
+  X
 } from 'lucide-react';
-import { SpotlightCard } from '@/components/ui/SpotlightCard';
 
 export interface TaskItem {
   id: string;
@@ -25,69 +26,33 @@ export interface TaskItem {
   dueDate: string;
 }
 
-const DEFAULT_TASKS: TaskItem[] = [
-  {
-    id: 'task-1',
-    title: 'PostgreSQL 18 Connection Pool Tuning & PgBouncer Benchmarking',
-    description: 'Optimize max client connections and reduce memory overhead under 100k req/sec load.',
-    assignee: 'Aarav Sharma',
-    column: 'In Progress',
-    priority: 'P1 High',
-    points: 8,
-    dueDate: 'Nov 24, 2026'
-  },
-  {
-    id: 'task-2',
-    title: 'Deploy Frankfurt (eu-central-1) Redundant Kubernetes Cluster',
-    description: 'Execute CapEx procurement per Resolution #2026-04 and establish low-latency peering.',
-    assignee: 'Vikram Joshi',
-    column: 'In Progress',
-    priority: 'P0 Blocker',
-    points: 13,
-    dueDate: 'Nov 28, 2026'
-  },
-  {
-    id: 'task-3',
-    title: 'Finalize Deloitte Q3 Audit Preparation Financial Package',
-    description: 'Complete accounts receivable reconciliation and balance sheet verification.',
-    assignee: 'Ananya Roy',
-    column: 'Review & QA',
-    priority: 'P1 High',
-    points: 5,
-    dueDate: 'Nov 25, 2026'
-  },
-  {
-    id: 'task-4',
-    title: 'Bilateral NDA Execution with Nexus Media Networks',
-    description: 'Review redlines on intellectual property protection clause with legal counsel.',
-    assignee: 'Sara Khan',
-    column: 'Completed',
-    priority: 'P2 Normal',
-    points: 3,
-    dueDate: 'Completed Nov 21'
-  },
-  {
-    id: 'task-5',
-    title: 'Implement FIDO2 WebAuthn Passkey Registration Flow in Director Panel',
-    description: 'Hardware security token authentication via browser biometric APIs.',
-    assignee: 'Mohammed Khaja',
-    column: 'Backlog',
-    priority: 'P1 High',
-    points: 8,
-    dueDate: 'Dec 02, 2026'
-  }
-];
+const LOCAL_STORAGE_KEY = 'zynocs_tasks_v6';
 
 export const TasksApp: React.FC = () => {
-  const [tasks, setTasks] = useState<TaskItem[]>(DEFAULT_TASKS);
+  const [tasks, setTasks] = useState<TaskItem[]>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse saved tasks:', e);
+      }
+    }
+    return [];
+  });
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Form state
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
-  const [newAssignee, setNewAssignee] = useState('Aarav Sharma');
+  const [newAssignee, setNewAssignee] = useState('Mohammed Khaja Moinuddin');
   const [newPriority, setNewPriority] = useState<TaskItem['priority']>('P1 High');
   const [newPoints, setNewPoints] = useState(5);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks));
+  }, [tasks]);
 
   const columns: TaskItem['column'][] = ['Backlog', 'In Progress', 'Review & QA', 'Completed'];
 
@@ -102,18 +67,25 @@ export const TasksApp: React.FC = () => {
     const newTask: TaskItem = {
       id: `task-${Date.now()}`,
       title: newTitle.trim(),
-      description: newDesc.trim() || 'Internal engineering task sprint deliverable.',
+      description: newDesc.trim() || 'Internal sprint deliverable.',
       assignee: newAssignee,
       column: 'Backlog',
       priority: newPriority,
       points: Number(newPoints) || 3,
-      dueDate: 'Dec 10, 2026'
+      dueDate: new Date(Date.now() + 7 * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     };
 
     setTasks(prev => [newTask, ...prev]);
     setNewTitle('');
     setNewDesc('');
     setIsAddModalOpen(false);
+  };
+
+  const handleClearTasks = () => {
+    if (window.confirm('Are you sure you want to clear all tasks?')) {
+      setTasks([]);
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
   };
 
   const getPriorityStyle = (priority: TaskItem['priority']) => {
@@ -145,13 +117,26 @@ export const TasksApp: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all self-start sm:self-auto cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Create Task</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {tasks.length > 0 && (
+            <button
+              onClick={handleClearTasks}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-red-950/40 text-slate-400 hover:text-red-400 border border-slate-800 hover:border-red-500/30 text-xs transition-all cursor-pointer"
+              title="Clear all sprint tasks"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Clear</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all self-start sm:self-auto cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Task</span>
+          </button>
+        </div>
       </div>
 
       {/* Kanban Board Columns */}
@@ -176,8 +161,8 @@ export const TasksApp: React.FC = () => {
 
               <div className="space-y-3 min-h-[300px]">
                 {colTasks.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-slate-600 font-mono">
-                    No tasks in this lane
+                  <div className="p-8 text-center text-xs text-slate-600 font-mono border border-dashed border-slate-800/60 rounded-xl">
+                    No tasks in {col}
                   </div>
                 ) : (
                   colTasks.map((task) => (
@@ -213,7 +198,7 @@ export const TasksApp: React.FC = () => {
                           <button
                             key={nextCol}
                             onClick={() => handleMoveTask(task.id, nextCol)}
-                            className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 hover:text-white transition-all font-mono"
+                            className="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 hover:text-white transition-all font-mono cursor-pointer"
                           >
                             &rarr; {nextCol.split(' ')[0]}
                           </button>
@@ -230,8 +215,8 @@ export const TasksApp: React.FC = () => {
 
       {/* Add Task Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-5">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-10 sm:pt-16 pb-12 bg-slate-950/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="max-w-md w-full p-6 sm:p-7 rounded-2xl bg-[#090f1a] border border-[#1f2d40] shadow-2xl space-y-5 shadow-cyan-950/40 relative">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Plus className="w-4 h-4 text-cyan-400" />
@@ -239,9 +224,9 @@ export const TasksApp: React.FC = () => {
               </h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-500 hover:text-white p-1 text-xs"
+                className="text-slate-500 hover:text-white p-1 text-xs cursor-pointer"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -253,7 +238,7 @@ export const TasksApp: React.FC = () => {
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Implement Redis Cache Cluster"
+                  placeholder="e.g. Implement Real-time WebSocket Gateway"
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500"
                 />
               </div>
@@ -264,7 +249,7 @@ export const TasksApp: React.FC = () => {
                   rows={2}
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  placeholder="Technical acceptance criteria..."
+                  placeholder="Technical acceptance criteria and goals..."
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 resize-none"
                 />
               </div>
@@ -303,10 +288,9 @@ export const TasksApp: React.FC = () => {
                   onChange={(e) => setNewAssignee(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
                 >
-                  <option value="Aarav Sharma">Aarav Sharma (API Lead)</option>
-                  <option value="Vikram Joshi">Vikram Joshi (SecOps)</option>
-                  <option value="Sara Khan">Sara Khan (Growth/HR)</option>
-                  <option value="Ananya Roy">Ananya Roy (Finance)</option>
+                  <option value="Mohammed Khaja Moinuddin">Mohammed Khaja Moinuddin (Chairperson)</option>
+                  <option value="Yousuf Mohammed Jaleel">Yousuf Mohammed Jaleel (CEO)</option>
+                  <option value="Unassigned / Team">Unassigned / Engineering Team</option>
                 </select>
               </div>
 
@@ -314,13 +298,13 @@ export const TasksApp: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20"
+                  className="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 cursor-pointer"
                 >
                   Create Task
                 </button>

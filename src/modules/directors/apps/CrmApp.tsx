@@ -56,296 +56,9 @@ const COLUMNS: ColumnMeta[] = [
   { id: 'lost', label: 'Lost', defaultProbability: 0, dotColor: 'bg-[#f43f5e]', shadowColor: 'shadow-[0_0_6px_#f43f5e]' }
 ];
 
-const INITIAL_DEALS: CrmDeal[] = [
-  // --- LEAD (Total: $31.7k) ---
-  {
-    id: 'deal-1',
-    company: 'Tessellate',
-    title: 'Design ops workspace',
-    amount: 9.6,
-    stage: 'lead',
-    probability: 10,
-    date: 'Jan 13',
-    assignee: 'SK',
-    avatarColor: 'bg-[#9a3412] text-[#ffedd5]',
-    assigneeColor: 'bg-[#fbcfe8]/10 text-[#f472b6] border-[#f472b6]/30'
-  },
-  {
-    id: 'deal-2',
-    company: 'Kettle Supply Co.',
-    title: 'Supplier onboarding',
-    amount: 7.4,
-    stage: 'lead',
-    probability: 10,
-    date: 'Jan 6',
-    assignee: 'AO',
-    avatarColor: 'bg-[#831843] text-[#fce7f3]',
-    assigneeColor: 'bg-[#fdba74]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
-  {
-    id: 'deal-3',
-    company: 'Quarry Studio',
-    title: 'Studio seats',
-    amount: 5.8,
-    stage: 'lead',
-    probability: 10,
-    date: 'Jan 24',
-    assignee: 'SK',
-    avatarColor: 'bg-[#334155] text-[#e2e8f0]',
-    assigneeColor: 'bg-[#fbcfe8]/10 text-[#f472b6] border-[#f472b6]/30'
-  },
-  {
-    id: 'deal-4',
-    company: 'Pinecrest Labs',
-    title: 'Research workspace',
-    amount: 8.9,
-    stage: 'lead',
-    probability: 10,
-    date: 'Jan 31',
-    assignee: 'DN',
-    avatarColor: 'bg-[#14532d] text-[#dcfce7]',
-    assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
+const INITIAL_DEALS: CrmDeal[] = [];
 
-  // --- QUALIFIED (Total: $71.9k) ---
-  {
-    id: 'deal-5',
-    company: 'Pinecrest Labs',
-    title: 'Lab inventory rollout',
-    amount: 14.2,
-    stage: 'qualified',
-    probability: 30,
-    date: 'Dec 26',
-    assignee: 'AO',
-    avatarColor: 'bg-[#14532d] text-[#dcfce7]',
-    assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
-  {
-    id: 'deal-6',
-    company: 'Veridian Air',
-    title: 'Crew scheduling add-on',
-    amount: 12.9,
-    stage: 'qualified',
-    probability: 30,
-    date: 'Dec 20',
-    assignee: 'JL',
-    avatarColor: 'bg-[#115e59] text-[#ccfbf1]',
-    assigneeColor: 'bg-[#e0e7ff]/10 text-[#a5b4fc] border-[#a5b4fc]/30'
-  },
-  {
-    id: 'deal-7',
-    company: 'Larkspur Hotels',
-    title: 'Guest messaging. 12 sites',
-    amount: 31.2,
-    stage: 'qualified',
-    probability: 30,
-    date: 'Dec 31',
-    assignee: 'MT',
-    avatarColor: 'bg-[#3730a3] text-[#e0e7ff]',
-    assigneeColor: 'bg-[#ccfbf1]/10 text-[#2dd4bf] border-[#2dd4bf]/30'
-  },
-  {
-    id: 'deal-8',
-    company: 'Orbitra',
-    title: 'Route planning',
-    amount: 13.6,
-    stage: 'qualified',
-    probability: 30,
-    date: 'Dec 23',
-    assignee: 'SK',
-    avatarColor: 'bg-[#155e75] text-[#cffafe]',
-    assigneeColor: 'bg-[#fbcfe8]/10 text-[#f472b6] border-[#f472b6]/30'
-  },
-
-  // --- PROPOSAL (Total: $131.6k) ---
-  {
-    id: 'deal-9',
-    company: 'Cobalt Harbor',
-    title: 'Fleet tracking pilot',
-    amount: 21.5,
-    stage: 'proposal',
-    probability: 55,
-    date: 'Dec 9',
-    isHot: true,
-    assignee: 'JL',
-    avatarColor: 'bg-[#1e40af] text-[#dbeafe]',
-    assigneeColor: 'bg-[#e0e7ff]/10 text-[#a5b4fc] border-[#a5b4fc]/30'
-  },
-  {
-    id: 'deal-10',
-    company: 'Marlow & Finch',
-    title: 'Wholesale portal',
-    amount: 27.8,
-    stage: 'proposal',
-    probability: 55,
-    date: 'Dec 13',
-    assignee: 'MT',
-    avatarColor: 'bg-[#854d0e] text-[#fef9c3]',
-    assigneeColor: 'bg-[#ccfbf1]/10 text-[#2dd4bf] border-[#2dd4bf]/30'
-  },
-  {
-    id: 'deal-11',
-    company: 'Sundial Health',
-    title: 'Clinic network licence',
-    amount: 52.6,
-    stage: 'proposal',
-    probability: 55,
-    date: 'Dec 18',
-    isHot: true,
-    assignee: 'AO',
-    avatarColor: 'bg-[#92400e] text-[#fef3c7]',
-    assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
-  {
-    id: 'deal-12',
-    company: 'Aster Robotics',
-    title: 'Packaging line sensors',
-    amount: 29.7,
-    stage: 'proposal',
-    probability: 55,
-    date: 'Dec 6',
-    assignee: 'MT',
-    avatarColor: 'bg-[#0369a1] text-[#e0f2fe]',
-    assigneeColor: 'bg-[#ccfbf1]/10 text-[#2dd4bf] border-[#2dd4bf]/30'
-  },
-
-  // --- NEGOTIATION (Total: $103.3k) ---
-  {
-    id: 'deal-13',
-    company: 'Brightloom',
-    title: 'Annual renewal – 60 seats',
-    amount: 38.4,
-    stage: 'negotiation',
-    probability: 75,
-    date: 'Nov 28',
-    isHot: true,
-    assignee: 'AO',
-    avatarColor: 'bg-[#6b21a8] text-[#f3e8ff]',
-    assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
-  {
-    id: 'deal-14',
-    company: 'Orbitra',
-    title: 'Ground ops expansion',
-    amount: 46.2,
-    stage: 'negotiation',
-    probability: 75,
-    date: 'Dec 3',
-    isHot: true,
-    assignee: 'DN',
-    avatarColor: 'bg-[#155e75] text-[#cffafe]',
-    assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
-  {
-    id: 'deal-15',
-    company: 'Halcyon Bikes',
-    title: 'Dealer network',
-    amount: 18.7,
-    stage: 'negotiation',
-    probability: 75,
-    date: '2d overdue',
-    isOverdue: true,
-    overdueText: '2d overdue',
-    assignee: 'JL',
-    avatarColor: 'bg-[#991b1b] text-[#fee2e2]',
-    assigneeColor: 'bg-[#e0e7ff]/10 text-[#a5b4fc] border-[#a5b4fc]/30'
-  },
-
-  // --- WON (Total: $112.6k) ---
-  {
-    id: 'deal-16',
-    company: 'Fennel Foods',
-    title: 'Recipe compliance suite',
-    amount: 23.9,
-    stage: 'won',
-    probability: 100,
-    date: 'Won Nov 13',
-    wonDate: 'Won Nov 13',
-    assignee: 'AO',
-    avatarColor: 'bg-[#166534] text-[#dcfce7]',
-    assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
-  {
-    id: 'deal-17',
-    company: 'Aster Robotics',
-    title: 'Warehouse automation',
-    amount: 41.3,
-    stage: 'won',
-    probability: 100,
-    date: 'Won Nov 6',
-    wonDate: 'Won Nov 6',
-    assignee: 'DN',
-    avatarColor: 'bg-[#0369a1] text-[#e0f2fe]',
-    assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30'
-  },
-  {
-    id: 'deal-18',
-    company: 'Cobalt Harbor',
-    title: 'Shipping desk upgrade',
-    amount: 16.8,
-    stage: 'won',
-    probability: 100,
-    date: 'Won Oct 30',
-    wonDate: 'Won Oct 30',
-    assignee: 'JL',
-    avatarColor: 'bg-[#1e40af] text-[#dbeafe]',
-    assigneeColor: 'bg-[#e0e7ff]/10 text-[#a5b4fc] border-[#a5b4fc]/30'
-  },
-  {
-    id: 'deal-19',
-    company: 'Brightloom',
-    title: 'Partner programme',
-    amount: 11.2,
-    stage: 'won',
-    probability: 100,
-    date: 'Won Oct 22',
-    wonDate: 'Won Oct 22',
-    assignee: 'MT',
-    avatarColor: 'bg-[#6b21a8] text-[#f3e8ff]',
-    assigneeColor: 'bg-[#ccfbf1]/10 text-[#2dd4bf] border-[#2dd4bf]/30'
-  },
-  {
-    id: 'deal-20',
-    company: 'Larkspur Hotels',
-    title: 'Front desk tablets',
-    amount: 19.4,
-    stage: 'won',
-    probability: 100,
-    date: 'Won Oct 15',
-    wonDate: 'Won Oct 15',
-    assignee: 'JL',
-    avatarColor: 'bg-[#3730a3] text-[#e0e7ff]',
-    assigneeColor: 'bg-[#e0e7ff]/10 text-[#a5b4fc] border-[#a5b4fc]/30'
-  },
-
-  // --- LOST (Total: $34.2k) ---
-  {
-    id: 'deal-21',
-    company: 'OmniRetail Ltd',
-    title: 'POS system cloud migration',
-    amount: 18.5,
-    stage: 'lost',
-    probability: 0,
-    date: 'Lost Nov 2',
-    assignee: 'SK',
-    avatarColor: 'bg-[#881337] text-[#ffe4e6]',
-    assigneeColor: 'bg-[#fbcfe8]/10 text-[#f472b6] border-[#f472b6]/30'
-  },
-  {
-    id: 'deal-22',
-    company: 'Skyline Logistics',
-    title: 'Fleet dispatch algorithm',
-    amount: 15.7,
-    stage: 'lost',
-    probability: 0,
-    date: 'Lost Oct 28',
-    assignee: 'JL',
-    avatarColor: 'bg-[#4c0519] text-[#ffe4e6]',
-    assigneeColor: 'bg-[#e0e7ff]/10 text-[#a5b4fc] border-[#a5b4fc]/30'
-  }
-];
-
-const LOCAL_STORAGE_KEY = 'zynocs_crm_pipeline_v2';
+const LOCAL_STORAGE_KEY = 'zynocs_crm_pipeline_v6';
 
 // Smooth Number Counter Component with easing animation
 const AnimatedAmount: React.FC<{
@@ -422,7 +135,7 @@ export const CrmApp: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newAmount, setNewAmount] = useState('15.0');
   const [newStage, setNewStage] = useState<StageId>('lead');
-  const [newAssignee, setNewAssignee] = useState('SK');
+  const [newAssignee, setNewAssignee] = useState('MK');
   const [newIsHot, setNewIsHot] = useState(false);
 
   // Save to localStorage
@@ -534,13 +247,6 @@ export const CrmApp: React.FC = () => {
     setActiveDeal(null);
   };
 
-  const handleResetToDefault = () => {
-    if (confirm('Reset pipeline back to the exact initial layout?')) {
-      setDeals(INITIAL_DEALS);
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-    }
-  };
-
   const handleCreateDeal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCompany.trim() || !newTitle.trim()) return;
@@ -557,6 +263,7 @@ export const CrmApp: React.FC = () => {
       'bg-[#881337] text-[#ffe4e6]'
     ];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const isMK = newAssignee === 'MK';
 
     const newDealItem: CrmDeal = {
       id: `deal-${Date.now()}`,
@@ -565,10 +272,10 @@ export const CrmApp: React.FC = () => {
       amount: parsedAmount,
       stage: newStage,
       probability: stageMeta ? stageMeta.defaultProbability : 10,
-      date: newStage === 'won' ? 'Won Today' : newStage === 'lost' ? 'Lost Today' : 'Jan 15',
+      date: newStage === 'won' ? 'Won Today' : newStage === 'lost' ? 'Lost Today' : 'Today',
       assignee: newAssignee,
       avatarColor: randomColor,
-      assigneeColor: 'bg-[#fed7aa]/15 text-[#fb923c] border-[#fb923c]/30',
+      assigneeColor: isMK ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
       isHot: newIsHot
     };
 
@@ -655,21 +362,13 @@ export const CrmApp: React.FC = () => {
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Add Deal</span>
             </button>
-
-            <button
-              onClick={handleResetToDefault}
-              title="Reset to original design"
-              className="p-2.5 rounded-xl bg-[#0e1724] hover:bg-[#152336] border border-[#1c293d] text-slate-400 hover:text-white transition-all cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-1">
-        <div className="relative w-full sm:w-72">
+      {/* Search Bar */}
+      <div className="flex items-center justify-between gap-3 px-1">
+        <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -681,29 +380,11 @@ export const CrmApp: React.FC = () => {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
-        </div>
-
-        {/* Assignee Filter Pills */}
-        <div className="flex items-center gap-1.5 self-start sm:self-auto overflow-x-auto no-scrollbar py-0.5">
-          <span className="text-[11px] font-mono text-slate-500 mr-1 uppercase">Owner:</span>
-          {['all', 'SK', 'AO', 'DN', 'JL', 'MT'].map((person) => (
-            <button
-              key={person}
-              onClick={() => setSelectedAssignee(person)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all ${
-                selectedAssignee === person
-                  ? 'bg-[#14b8a6] text-slate-950 shadow-md shadow-[#14b8a6]/20'
-                  : 'bg-[#0e1724] border border-[#1c293d] text-slate-400 hover:text-white'
-              }`}
-            >
-              {person === 'all' ? 'All' : person}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -837,7 +518,7 @@ export const CrmApp: React.FC = () => {
                         />
                       </div>
 
-                      {/* Bottom Row: Date / Hot / Overdue Badge + Assignee Avatar */}
+                      {/* Bottom Row: Date / Hot / Overdue Badge */}
                       <div className="flex items-center justify-between pt-1">
                         <div className="flex items-center gap-2">
                           <span className={`text-[11px] font-mono flex items-center gap-1 ${
@@ -865,11 +546,6 @@ export const CrmApp: React.FC = () => {
                               Lost
                             </span>
                           )}
-                        </div>
-
-                        {/* Assignee Circle */}
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold font-mono border ${deal.assigneeColor}`}>
-                          {deal.assignee}
                         </div>
                       </div>
 
@@ -900,8 +576,8 @@ export const CrmApp: React.FC = () => {
       {/* INSPECT / EDIT DEAL MODAL */}
       {/* ========================================================================= */}
       {activeDeal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-          <div className="p-6 rounded-3xl bg-[#090f1a] border border-[#1f2d40] shadow-2xl max-w-md w-full space-y-5">
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-start justify-center p-4 pt-10 sm:pt-16 pb-12 overflow-y-auto animate-fade-in">
+          <div className="p-6 sm:p-7 rounded-2xl bg-[#090f1a] border border-[#1f2d40] shadow-2xl max-w-lg w-full space-y-5 shadow-cyan-950/40 relative">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shadow-md ${activeDeal.avatarColor}`}>
@@ -963,8 +639,8 @@ export const CrmApp: React.FC = () => {
                 </span>
               </div>
               <div>
-                <span className="text-slate-500 block text-[10px]">Assigned Owner</span>
-                <span className="text-sm font-bold text-slate-200 block mt-0.5">{activeDeal.assignee}</span>
+                <span className="text-slate-500 block text-[10px]">Pipeline Stage</span>
+                <span className="text-sm font-bold text-slate-200 block mt-0.5 capitalize">{activeDeal.stage}</span>
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Target Date</span>
@@ -997,78 +673,97 @@ export const CrmApp: React.FC = () => {
       {/* CREATE NEW DEAL MODAL */}
       {/* ========================================================================= */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-start justify-center p-4 pt-14 sm:pt-20 overflow-y-auto animate-fade-in">
           <form
             onSubmit={handleCreateDeal}
-            className="p-6 rounded-3xl bg-[#090f1a] border border-[#1f2d40] shadow-2xl max-w-md w-full space-y-4"
+            className="p-6 sm:p-7 rounded-2xl bg-[#090f1a] border border-[#1f2d40] shadow-2xl max-w-lg w-full space-y-5 shadow-cyan-950/40 relative animate-scale-in my-auto sm:my-0"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-[#141e2e]">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#14b8a6]" />
-                <h3 className="text-base font-bold text-white">Create New Deal</h3>
+            {/* Header */}
+            <div className="flex items-start justify-between pb-4 border-b border-[#141e2e]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-[#14b8a6]">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white tracking-tight">Create New Client Deal</h3>
+                  <p className="text-xs text-slate-400">Record a new enterprise client account into the active pipeline.</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setCreateModalOpen(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/60 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3">
+            {/* Inputs */}
+            <div className="space-y-4">
               <div>
-                <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
-                  Client / Company Name *
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Client / Company Name <span className="text-teal-400">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={newCompany}
-                  onChange={(e) => setNewCompany(e.target.value)}
-                  placeholder="e.g. Acme Corp"
-                  className="w-full bg-[#0e1724] border border-[#1c293d] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#14b8a6] font-mono"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={newCompany}
+                    onChange={(e) => setNewCompany(e.target.value)}
+                    placeholder="e.g. Acme Corporation"
+                    className="w-full bg-[#0c1524] border border-[#1c293d] rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]/25 transition-all"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
-                  Deal Scope / Title *
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Deal Scope / Project Title <span className="text-teal-400">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Enterprise Cloud Migration"
-                  className="w-full bg-[#0e1724] border border-[#1c293d] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#14b8a6] font-mono"
+                  placeholder="e.g. Enterprise Cloud & AI Infrastructure Modernization"
+                  className="w-full bg-[#0c1524] border border-[#1c293d] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]/25 transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
-                    Value ($k USD) *
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Deal Value ($k USD) <span className="text-teal-400">*</span>
                   </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={newAmount}
-                    onChange={(e) => setNewAmount(e.target.value)}
-                    placeholder="15.0"
-                    className="w-full bg-[#0e1724] border border-[#1c293d] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#14b8a6] font-mono"
-                  />
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                      <DollarSign className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      required
+                      value={newAmount}
+                      onChange={(e) => setNewAmount(e.target.value)}
+                      placeholder="25.0"
+                      className="w-full bg-[#0c1524] border border-[#1c293d] rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]/25 transition-all"
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-mono mt-1 block">e.g. 25.0 = $25,000 USD</span>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Pipeline Stage
                   </label>
                   <select
                     value={newStage}
                     onChange={(e) => setNewStage(e.target.value as StageId)}
-                    className="w-full bg-[#0e1724] border border-[#1c293d] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#14b8a6] font-mono"
+                    className="w-full bg-[#0c1524] border border-[#1c293d] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#14b8a6] focus:ring-1 focus:ring-[#14b8a6]/25 transition-all cursor-pointer"
                   >
                     {COLUMNS.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -1079,51 +774,50 @@ export const CrmApp: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
-                    Assignee
-                  </label>
-                  <select
-                    value={newAssignee}
-                    onChange={(e) => setNewAssignee(e.target.value)}
-                    className="w-full bg-[#0e1724] border border-[#1c293d] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#14b8a6] font-mono"
-                  >
-                    {['SK', 'AO', 'DN', 'JL', 'MT'].map((person) => (
-                      <option key={person} value={person}>
-                        {person}
-                      </option>
-                    ))}
-                  </select>
+              {/* Priority Toggle Card */}
+              <label 
+                htmlFor="hotDeal" 
+                className={`flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${
+                  newIsHot 
+                    ? 'bg-amber-500/10 border-amber-500/30' 
+                    : 'bg-[#0c1524] border-[#1c293d] hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    newIsHot ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    <Flame className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-white">Mark as High-Priority / Hot Deal</div>
+                    <div className="text-[11px] text-slate-400">Highlights this deal with priority badges on executive telemetry</div>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-2 pt-5">
-                  <input
-                    type="checkbox"
-                    id="hotDeal"
-                    checked={newIsHot}
-                    onChange={(e) => setNewIsHot(e.target.checked)}
-                    className="rounded bg-[#0e1724] border-[#1c293d] text-[#14b8a6] focus:ring-0"
-                  />
-                  <label htmlFor="hotDeal" className="text-xs text-slate-300 font-mono cursor-pointer">
-                    🔥 Mark as Hot Deal
-                  </label>
-                </div>
-              </div>
+                <input
+                  type="checkbox"
+                  id="hotDeal"
+                  checked={newIsHot}
+                  onChange={(e) => setNewIsHot(e.target.checked)}
+                  className="w-4 h-4 rounded bg-[#090f1a] border-slate-700 text-amber-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                />
+              </label>
             </div>
 
-            <div className="pt-3 flex items-center justify-end gap-2">
+            {/* Actions */}
+            <div className="pt-3 border-t border-[#141e2e] flex items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setCreateModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white text-xs font-semibold"
+                className="px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-semibold transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 rounded-xl bg-[#14b8a6] hover:bg-[#0d9488] text-slate-950 font-bold text-xs shadow-md shadow-[#14b8a6]/25 transition-all cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-teal-500/20 transition-all flex items-center gap-2 cursor-pointer"
               >
+                <Plus className="w-4 h-4" />
                 Add Deal to Pipeline
               </button>
             </div>

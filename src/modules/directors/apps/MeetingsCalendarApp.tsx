@@ -20,7 +20,9 @@ import {
   Link2,
   Vote,
   Search,
-  Filter
+  Filter,
+  Trash2,
+  X
 } from 'lucide-react';
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
 
@@ -52,106 +54,31 @@ export interface BoardMeeting {
   }[];
 }
 
-const INITIAL_MEETINGS: BoardMeeting[] = [
-  {
-    id: 'BM-2026-08',
-    title: 'Q1 Executive Boardroom Governance & Global Expansion',
-    type: 'Board of Directors',
-    date: '2026-11-24',
-    time: '15:00 - 16:30 IST',
-    duration: '90 mins',
-    status: 'Upcoming',
-    location: 'Zynocs Executive Boardroom & Encrypted Video Bridge',
-    videoLink: 'https://meet.zynocs.com/board-room-alpha',
-    quorum: {
-      confirmed: 4,
-      required: 3,
-      status: 'Achieved'
-    },
-    attendees: [
-      { name: 'Mohammed Khaja Moinuddin', role: 'Chairperson & Director', avatarInitials: 'KM', status: 'Confirmed' },
-      { name: 'Yousuf Mohammed Jaleel', role: 'CEO & Founder', avatarInitials: 'YJ', status: 'Confirmed' },
-      { name: 'Sarah Jenkins', role: 'Lead Investor Representative', avatarInitials: 'SJ', status: 'Confirmed' },
-      { name: 'Ananya Roy', role: 'Head of Finance & Treasury', avatarInitials: 'AR', status: 'Confirmed' },
-      { name: 'Aarav Sharma', role: 'Staff Systems Architect', avatarInitials: 'AS', status: 'Tentative' }
-    ],
-    agenda: [
-      '1. Review and Ratification of Resolution #2026-04 (Frankfurt & London Data Centers)',
-      '2. Q4 Enterprise CRM Pipeline Velocity ($1.45M Pipeline Analysis)',
-      '3. PostgreSQL 18 Distributed Multi-Region Migration Assessment',
-      '4. Executive Bonus & Senior Engineering Option Pool Pool Distribution'
-    ],
-    documents: [
-      { title: 'Resolution_2026_04_Infrastructure.pdf', size: '2.4 MB' },
-      { title: 'Q1_Financial_Projections_Audited.xlsx', size: '5.1 MB' },
-      { title: 'Zynocs_Architecture_Mesh_v2.pdf', size: '8.7 MB' }
-    ]
-  },
-  {
-    id: 'BM-2026-09',
-    title: 'Enterprise Architecture & Zero-Trust Security Audit',
-    type: 'Architecture Review',
-    date: '2026-11-28',
-    time: '11:00 - 12:00 IST',
-    duration: '60 mins',
-    status: 'Upcoming',
-    location: 'Encrypted Virtual Bridge (FIDO2 Mandatory)',
-    videoLink: 'https://meet.zynocs.com/secops-review',
-    quorum: {
-      confirmed: 3,
-      required: 2,
-      status: 'Achieved'
-    },
-    attendees: [
-      { name: 'Mohammed Khaja Moinuddin', role: 'Chairperson & Director', avatarInitials: 'KM', status: 'Confirmed' },
-      { name: 'Vikram Joshi', role: 'Principal DevSecOps Engineer', avatarInitials: 'VJ', status: 'Confirmed' },
-      { name: 'Michael Chen', role: 'Agile Delivery Lead', avatarInitials: 'MC', status: 'Confirmed' }
-    ],
-    agenda: [
-      '1. Subdomain tenant isolation penetration test report',
-      '2. FIDO2 Passkey hardware token compliance review across all 48 employees',
-      '3. Automated CI/CD pipeline code scanner reports on GitHub Enterprise'
-    ],
-    documents: [
-      { title: 'SOC2_Type_II_PreAudit_Checklist.pdf', size: '3.1 MB' },
-      { title: 'Penetration_Test_Executive_Summary.pdf', size: '1.8 MB' }
-    ]
-  },
-  {
-    id: 'BM-2026-10',
-    title: 'Strategic Brand Partners & Tier-1 Sponsors Summit',
-    type: 'Investor Briefing',
-    date: '2026-12-05',
-    time: '17:00 - 18:30 IST',
-    duration: '90 mins',
-    status: 'Upcoming',
-    location: 'Hyatt Regency Executive Suite & Remote Telecast',
-    videoLink: 'https://meet.zynocs.com/partner-summit',
-    quorum: {
-      confirmed: 2,
-      required: 3,
-      status: 'Pending'
-    },
-    attendees: [
-      { name: 'Mohammed Khaja Moinuddin', role: 'Chairperson & Director', avatarInitials: 'KM', status: 'Confirmed' },
-      { name: 'Yousuf Mohammed Jaleel', role: 'CEO', avatarInitials: 'YJ', status: 'Confirmed' },
-      { name: 'David Miller', role: 'TechCloud Global VP', avatarInitials: 'DM', status: 'Tentative' },
-      { name: 'Elena Rostova', role: 'AdOps Lead', avatarInitials: 'ER', status: 'Tentative' }
-    ],
-    agenda: [
-      '1. 2027 Strategic Sponsorship Deck Walkthrough',
-      '2. Annual Enterprise SaaS Licensing commitments',
-      '3. Keynote presentation slots for Zynocs Annual Tech Summit'
-    ],
-    documents: [
-      { title: 'Zynocs_Sponsorship_Prospectus_2027.pdf', size: '12.4 MB' }
-    ]
-  }
-];
+const INITIAL_MEETINGS: BoardMeeting[] = [];
+
+const LOCAL_STORAGE_KEY = 'zynocs_board_meetings_v8';
 
 export const MeetingsCalendarApp: React.FC = () => {
-  const [meetings, setMeetings] = useState<BoardMeeting[]>(INITIAL_MEETINGS);
-  const [selectedMeeting, setSelectedMeeting] = useState<BoardMeeting>(INITIAL_MEETINGS[0]);
+  const [meetings, setMeetings] = useState<BoardMeeting[]>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse saved meetings:', e);
+      }
+    }
+    return INITIAL_MEETINGS;
+  });
+
+  const [selectedMeeting, setSelectedMeeting] = useState<BoardMeeting | null>(() => {
+    return meetings[0] || null;
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(meetings));
+  }, [meetings]);
+
   const [viewMode, setViewMode] = useState<'schedule' | 'calendar' | 'quorum'>('schedule');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -162,7 +89,7 @@ export const MeetingsCalendarApp: React.FC = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<BoardMeeting['type']>('Board of Directors');
   const [newDate, setNewDate] = useState('2026-12-10');
-  const [newTime, setNewTime] = useState('14:00 - 15:30 IST');
+  const [newTime, setNewTime] = useState('15:00 - 16:30 IST');
   const [newLocation, setNewLocation] = useState('Encrypted Boardroom Bridge');
   const [newAgenda, setNewAgenda] = useState('');
 
@@ -177,7 +104,7 @@ export const MeetingsCalendarApp: React.FC = () => {
 
     const created: BoardMeeting = {
       id: `BM-2026-${Math.floor(11 + Math.random() * 90)}`,
-      title: newTitle,
+      title: newTitle.trim(),
       type: newType,
       date: newDate,
       time: newTime,
@@ -186,22 +113,33 @@ export const MeetingsCalendarApp: React.FC = () => {
       location: newLocation,
       videoLink: `https://meet.zynocs.com/room-${Math.floor(100 + Math.random() * 900)}`,
       quorum: {
-        confirmed: 1,
-        required: 3,
-        status: 'Pending'
+        confirmed: 2,
+        required: 2,
+        status: 'Achieved'
       },
       attendees: [
-        { name: 'Mohammed Khaja Moinuddin', role: 'Chairperson & Director', avatarInitials: 'KM', status: 'Confirmed' }
+        { name: 'Mohammed Khaja Moinuddin', role: 'Founder & Chairperson', avatarInitials: 'MK', status: 'Confirmed' },
+        { name: 'Yousuf Mohammed Jaleel', role: 'Founder & CEO', avatarInitials: 'YM', status: 'Confirmed' }
       ],
       agenda: agendaItems.length > 0 ? agendaItems : ['1. Formal Executive Agenda Opening', '2. Executive Vote Review'],
       documents: [{ title: 'Meeting_Notice_Signed.pdf', size: '1.2 MB' }]
     };
 
-    setMeetings([created, ...meetings]);
+    setMeetings((prev) => [created, ...prev]);
     setSelectedMeeting(created);
     setShowScheduleModal(false);
     setNewTitle('');
     setNewAgenda('');
+  };
+
+  const handleDeleteMeeting = (id: string) => {
+    setMeetings((prev) => {
+      const next = prev.filter((m) => m.id !== id);
+      if (selectedMeeting?.id === id) {
+        setSelectedMeeting(next[0] || null);
+      }
+      return next;
+    });
   };
 
   const copyVideoLink = (url: string) => {
@@ -276,7 +214,7 @@ export const MeetingsCalendarApp: React.FC = () => {
 
           <button
             onClick={() => setShowScheduleModal(true)}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold text-xs shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition-all cursor-pointer hover:scale-[1.02]"
+            className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Schedule Meeting</span>
@@ -291,19 +229,33 @@ export const MeetingsCalendarApp: React.FC = () => {
             <span>Next Executive Meeting</span>
             <Clock className="w-4 h-4 text-cyan-400" />
           </div>
-          <div className="text-lg font-black text-white mt-2 font-mono">Nov 24, 15:00 IST</div>
-          <div className="text-[11px] text-cyan-400 mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Quorum Confirmed (4/3)
+          <div className="text-lg font-black text-white mt-2 font-mono">
+            {meetings.length > 0 ? `${meetings[0].date}` : 'None Scheduled'}
+          </div>
+          <div className="text-[11px] text-cyan-400 mt-1 flex items-center gap-1 font-mono">
+            {meetings.length > 0 ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5" /> Quorum {meetings[0].quorum.status} ({meetings[0].quorum.confirmed}/{meetings[0].quorum.required})
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5" /> Clean Assembly Schedule
+              </>
+            )}
           </div>
         </SpotlightCard>
 
         <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span>Scheduled Assemblies</span>
-            <CalendarIcon className="w-4 h-4 text-indigo-400" />
+            <CalendarIcon className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="text-2xl font-black text-white mt-2 font-mono">{meetings.length} Sessions</div>
-          <div className="text-[11px] text-slate-400 mt-1">3 Board • 1 Tech Review</div>
+          <div className="text-[11px] text-slate-400 mt-1 font-mono">
+            {meetings.length > 0 
+              ? `${meetings.filter(m => m.type === 'Board of Directors').length} Board • ${meetings.filter(m => m.type !== 'Board of Directors').length} Review`
+              : 'Zero Pending Assemblies'}
+          </div>
         </SpotlightCard>
 
         <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
@@ -321,10 +273,10 @@ export const MeetingsCalendarApp: React.FC = () => {
         <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span>Encrypted Video Bridge</span>
-            <Shield className="w-4 h-4 text-purple-400" />
+            <Shield className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="text-sm font-bold text-white mt-2">Zero-Trust WebRTC</div>
-          <div className="text-[11px] text-purple-400 mt-1 font-mono">AES-256 GCM Audio/Video</div>
+          <div className="text-[11px] text-cyan-400 mt-1 font-mono">AES-256 GCM Audio/Video</div>
         </SpotlightCard>
       </div>
 
@@ -344,7 +296,7 @@ export const MeetingsCalendarApp: React.FC = () => {
                   placeholder="Search meetings, agendas, committees..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full pl-9 pr-4 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -355,7 +307,7 @@ export const MeetingsCalendarApp: React.FC = () => {
                     onClick={() => setTypeFilter(t)}
                     className={`px-2.5 py-1 rounded-lg shrink-0 transition-all ${
                       typeFilter === t
-                        ? 'bg-indigo-950 text-indigo-300 border border-indigo-500/40 font-bold'
+                        ? 'bg-cyan-950/60 text-cyan-300 border border-cyan-500/40 font-bold'
                         : 'bg-slate-900/60 text-slate-400 hover:text-white'
                     }`}
                   >
@@ -367,234 +319,285 @@ export const MeetingsCalendarApp: React.FC = () => {
 
             {/* Meetings Cards */}
             <div className="space-y-3">
-              {filteredMeetings.map((meeting) => {
-                const isSelected = selectedMeeting.id === meeting.id;
-                return (
-                  <div
-                    key={meeting.id}
-                    onClick={() => setSelectedMeeting(meeting)}
-                    className={`p-5 rounded-2xl border transition-all cursor-pointer relative group ${
-                      isSelected
-                        ? 'bg-slate-900/90 border-indigo-500/60 shadow-xl shadow-indigo-500/10'
-                        : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/40'
-                    }`}
+              {filteredMeetings.length === 0 ? (
+                <div className="p-8 rounded-2xl bg-slate-900/40 border border-dashed border-slate-800 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-xl bg-slate-800/60 border border-slate-700/60 text-slate-400 flex items-center justify-center mx-auto">
+                    <CalendarDays className="w-6 h-6 text-cyan-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">No Scheduled Meetings</h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      No board or committee assemblies booked yet.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowScheduleModal(true)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-md shadow-cyan-500/20"
                   >
-                    {isSelected && (
-                      <div className="absolute left-0 top-3 bottom-3 w-1 bg-gradient-to-b from-indigo-500 to-cyan-400 rounded-r-full" />
-                    )}
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Schedule First Meeting</span>
+                  </button>
+                </div>
+              ) : (
+                filteredMeetings.map((meeting) => {
+                  const isSelected = selectedMeeting?.id === meeting.id;
+                  return (
+                    <div
+                      key={meeting.id}
+                      onClick={() => setSelectedMeeting(meeting)}
+                      className={`p-5 rounded-2xl border transition-all cursor-pointer relative group ${
+                        isSelected
+                          ? 'bg-slate-900/90 border-cyan-500/60 shadow-xl shadow-cyan-500/10'
+                          : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/40'
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="absolute left-0 top-3 bottom-3 w-1 bg-cyan-400 rounded-r-full" />
+                      )}
 
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-300">
-                        {meeting.type}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
-                        meeting.quorum.status === 'Achieved'
-                          ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
-                          : 'bg-amber-950/60 text-amber-400 border-amber-500/40'
-                      }`}>
-                        Quorum: {meeting.quorum.confirmed}/{meeting.quorum.required} {meeting.quorum.status}
-                      </span>
-                    </div>
-
-                    <h3 className="text-sm font-bold text-white mt-2 group-hover:text-indigo-300 transition-colors">
-                      {meeting.title}
-                    </h3>
-
-                    <div className="mt-3 flex items-center justify-between text-xs text-slate-400 font-mono">
-                      <span className="flex items-center gap-1.5 text-slate-300">
-                        <CalendarIcon className="w-3.5 h-3.5 text-indigo-400" />
-                        {meeting.date}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-cyan-400" />
-                        {meeting.time}
-                      </span>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between">
-                      <div className="flex items-center -space-x-2">
-                        {meeting.attendees.slice(0, 4).map((att, i) => (
-                          <div
-                            key={i}
-                            title={`${att.name} (${att.role})`}
-                            className="w-6 h-6 rounded-full bg-slate-800 border-2 border-slate-950 text-[9px] font-mono font-bold text-slate-300 flex items-center justify-center"
-                          >
-                            {att.avatarInitials}
-                          </div>
-                        ))}
-                        {meeting.attendees.length > 4 && (
-                          <div className="w-6 h-6 rounded-full bg-slate-900 border-2 border-slate-950 text-[9px] font-mono font-bold text-slate-400 flex items-center justify-center">
-                            +{meeting.attendees.length - 4}
-                          </div>
-                        )}
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-300">
+                          {meeting.type}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                          meeting.quorum.status === 'Achieved'
+                            ? 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40'
+                            : 'bg-amber-950/60 text-amber-400 border-amber-500/40'
+                        }`}>
+                          Quorum: {meeting.quorum.confirmed}/{meeting.quorum.required} {meeting.quorum.status}
+                        </span>
                       </div>
 
-                      <span className="text-[11px] text-indigo-400 font-semibold group-hover:underline flex items-center gap-1">
-                        View Board Dossier →
-                      </span>
+                      <h3 className="text-sm font-bold text-white mt-2 group-hover:text-cyan-300 transition-colors">
+                        {meeting.title}
+                      </h3>
+
+                      <div className="mt-3 flex items-center justify-between text-xs text-slate-400 font-mono">
+                        <span className="flex items-center gap-1.5 text-slate-300">
+                          <CalendarIcon className="w-3.5 h-3.5 text-cyan-400" />
+                          {meeting.date}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                          {meeting.time}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                        <div className="flex items-center -space-x-2">
+                          {meeting.attendees.slice(0, 4).map((att, i) => (
+                            <div
+                              key={i}
+                              title={`${att.name} (${att.role})`}
+                              className="w-6 h-6 rounded-full bg-slate-800 border-2 border-slate-950 text-[9px] font-mono font-bold text-slate-300 flex items-center justify-center"
+                            >
+                              {att.avatarInitials}
+                            </div>
+                          ))}
+                          {meeting.attendees.length > 4 && (
+                            <div className="w-6 h-6 rounded-full bg-slate-900 border-2 border-slate-950 text-[9px] font-mono font-bold text-slate-400 flex items-center justify-center">
+                              +{meeting.attendees.length - 4}
+                            </div>
+                          )}
+                        </div>
+
+                        <span className="text-[11px] text-cyan-400 font-semibold group-hover:underline flex items-center gap-1">
+                          View Board Dossier →
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
 
           </div>
 
           {/* Right Column (7 cols): Selected Meeting Dossier & Actions */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-6">
-              
-              {/* Dossier Header */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-slate-800">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-indigo-400 font-bold">{selectedMeeting.id}</span>
-                    <span className="text-slate-600">•</span>
-                    <span className="text-xs font-mono text-slate-400">{selectedMeeting.type}</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white">
-                    {selectedMeeting.title}
-                  </h2>
-                  <div className="flex items-center gap-4 text-xs text-slate-400 flex-wrap pt-1 font-mono">
-                    <span className="flex items-center gap-1.5 text-white">
-                      <CalendarIcon className="w-3.5 h-3.5 text-indigo-400" />
-                      {selectedMeeting.date}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-white">
-                      <Clock className="w-3.5 h-3.5 text-cyan-400" />
-                      {selectedMeeting.time} ({selectedMeeting.duration})
-                    </span>
-                    <span className="flex items-center gap-1.5 text-slate-300">
-                      <MapPin className="w-3.5 h-3.5 text-rose-400" />
-                      {selectedMeeting.location}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex sm:flex-col items-center gap-2 shrink-0">
-                  <a
-                    href={selectedMeeting.videoLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
-                  >
-                    <Video className="w-4 h-4" />
-                    <span>Join Video Bridge</span>
-                  </a>
-
-                  <button
-                    onClick={() => copyVideoLink(selectedMeeting.videoLink)}
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1.5 transition-all border border-slate-700/80 cursor-pointer"
-                    title="Copy bridge link"
-                  >
-                    {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span className="text-[11px] font-mono">{copiedLink ? 'Copied' : 'Copy URL'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Quorum Governance Status Box */}
-              <div className="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-indigo-950 border border-indigo-500/40 text-indigo-400 flex items-center justify-center">
-                    <Vote className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                      Executive Quorum Status:
-                      <span className={selectedMeeting.quorum.status === 'Achieved' ? 'text-emerald-400' : 'text-amber-400'}>
-                        {selectedMeeting.quorum.status} ({selectedMeeting.quorum.confirmed}/{selectedMeeting.quorum.required} Confirmed)
-                      </span>
-                    </h4>
-                    <p className="text-[11px] text-slate-400">
-                      Under corporate bylaws, binding resolution votes require at least 3 authorized board signatures.
-                    </p>
-                  </div>
-                </div>
-
-                <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  Legal Quorum Verified
-                </span>
-              </div>
-
-              {/* Agenda Items */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-cyan-400" />
-                  Formal Meeting Agenda
-                </h4>
-                <div className="space-y-2">
-                  {selectedMeeting.agenda.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-200 leading-relaxed flex items-start gap-3"
-                    >
-                      <span className="w-5 h-5 rounded-lg bg-slate-900 text-cyan-400 font-mono font-bold text-[10px] flex items-center justify-center shrink-0 border border-slate-800">
-                        {idx + 1}
-                      </span>
-                      <span>{item}</span>
+            {selectedMeeting ? (
+              <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-6">
+                
+                {/* Dossier Header */}
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-slate-800">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-cyan-400 font-bold">{selectedMeeting.id}</span>
+                      <span className="text-slate-600">•</span>
+                      <span className="text-xs font-mono text-slate-400">{selectedMeeting.type}</span>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-white">
+                      {selectedMeeting.title}
+                    </h2>
+                    <div className="flex items-center gap-4 text-xs text-slate-400 flex-wrap pt-1 font-mono">
+                      <span className="flex items-center gap-1.5 text-white">
+                        <CalendarIcon className="w-3.5 h-3.5 text-cyan-400" />
+                        {selectedMeeting.date}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-white">
+                        <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                        {selectedMeeting.time} ({selectedMeeting.duration})
+                      </span>
+                      <span className="flex items-center gap-1.5 text-slate-300">
+                        <MapPin className="w-3.5 h-3.5 text-rose-400" />
+                        {selectedMeeting.location}
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Confirmed Attendees */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-400" />
-                  Boardroom Roster & RSVPs ({selectedMeeting.attendees.length})
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {selectedMeeting.attendees.map((attendee, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3"
+                  <div className="flex sm:flex-col items-center gap-2 shrink-0">
+                    <a
+                      href={selectedMeeting.videoLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-900 to-slate-900 border border-indigo-500/30 text-indigo-300 font-bold text-xs flex items-center justify-center shrink-0">
-                          {attendee.avatarInitials}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-xs font-bold text-white truncate">{attendee.name}</div>
-                          <div className="text-[10px] text-slate-400 font-mono truncate">{attendee.role}</div>
-                        </div>
+                      <Video className="w-4 h-4" />
+                      <span>Join Video Bridge</span>
+                    </a>
+
+                    <div className="flex items-center gap-2 w-full">
+                      <button
+                        onClick={() => copyVideoLink(selectedMeeting.videoLink)}
+                        className="flex-1 p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-700/80 cursor-pointer"
+                        title="Copy bridge link"
+                      >
+                        {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span className="text-[11px] font-mono">{copiedLink ? 'Copied' : 'Copy URL'}</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMeeting(selectedMeeting.id)}
+                        className="p-2 rounded-xl bg-slate-800 hover:bg-red-950/60 hover:text-red-400 text-slate-400 transition-all border border-slate-700/80 hover:border-red-500/30 cursor-pointer"
+                        title="Delete meeting"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quorum Governance Status Box */}
+                <div className="p-4 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-400 flex items-center justify-center">
+                      <Vote className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                        Executive Quorum Status:
+                        <span className={selectedMeeting.quorum.status === 'Achieved' ? 'text-emerald-400' : 'text-amber-400'}>
+                          {selectedMeeting.quorum.status} ({selectedMeeting.quorum.confirmed}/{selectedMeeting.quorum.required} Confirmed)
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Under corporate bylaws, binding resolution votes require at least 3 authorized board signatures.
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                    Legal Quorum Verified
+                  </span>
+                </div>
+
+                {/* Agenda Items */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-cyan-400" />
+                    Formal Meeting Agenda
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedMeeting.agenda.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-200 leading-relaxed flex items-start gap-3"
+                      >
+                        <span className="w-5 h-5 rounded-lg bg-slate-900 text-cyan-400 font-mono font-bold text-[10px] flex items-center justify-center shrink-0 border border-slate-800">
+                          {idx + 1}
+                        </span>
+                        <span>{item}</span>
                       </div>
-
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold shrink-0 ${
-                        attendee.status === 'Confirmed'
-                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-amber-950 text-amber-400 border border-amber-500/30'
-                      }`}>
-                        {attendee.status}
-                      </span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Attached Board Documents */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-purple-400" />
-                  Encrypted Documents & Board Packs ({selectedMeeting.documents.length})
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {selectedMeeting.documents.map((doc, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl bg-slate-950/40 border border-slate-800/60 flex items-center justify-between text-xs group hover:border-slate-700 transition-all"
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <FileText className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 transition-colors shrink-0" />
-                        <span className="text-slate-300 truncate font-mono text-[11px]">{doc.title}</span>
+                {/* Confirmed Attendees */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
+                    <Users className="w-4 h-4 text-emerald-400" />
+                    Boardroom Roster & RSVPs ({selectedMeeting.attendees.length})
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {selectedMeeting.attendees.map((attendee, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-900 to-slate-900 border border-cyan-500/30 text-cyan-300 font-bold text-xs flex items-center justify-center shrink-0">
+                            {attendee.avatarInitials}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-white truncate">{attendee.name}</div>
+                            <div className="text-[10px] text-slate-400 font-mono truncate">{attendee.role}</div>
+                          </div>
+                        </div>
+
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold shrink-0 ${
+                          attendee.status === 'Confirmed'
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
+                            : 'bg-amber-950 text-amber-400 border border-amber-500/30'
+                        }`}>
+                          {attendee.status}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-mono text-slate-500 shrink-0 ml-2">{doc.size}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-            </div>
+                {/* Attached Board Documents */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-purple-400" />
+                    Encrypted Documents & Board Packs ({selectedMeeting.documents.length})
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {selectedMeeting.documents.map((doc, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-slate-950/40 border border-slate-800/60 flex items-center justify-between text-xs group hover:border-slate-700 transition-all"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <FileText className="w-4 h-4 text-slate-400 group-hover:text-cyan-400 transition-colors shrink-0" />
+                          <span className="text-slate-300 truncate font-mono text-[11px]">{doc.title}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-500 shrink-0 ml-2">{doc.size}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            ) : (
+              <div className="p-12 rounded-3xl bg-slate-900/40 border border-dashed border-slate-800 text-center space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-slate-800/50 border border-slate-700 text-slate-400 flex items-center justify-center mx-auto">
+                  <CalendarDays className="w-8 h-8 text-cyan-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">No Meeting Dossier Selected</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+                    Select a meeting from the schedule or click &quot;Schedule Meeting&quot; above to organize a formal board assembly.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowScheduleModal(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-md shadow-cyan-500/20"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Schedule Meeting</span>
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
@@ -628,34 +631,32 @@ export const MeetingsCalendarApp: React.FC = () => {
               </div>
             ))}
 
-            {/* Days Mockup */}
+            {/* Days Dynamic Grid */}
             {Array.from({ length: 30 }).map((_, i) => {
               const dayNum = i + 1;
-              const hasMeeting = dayNum === 24 || dayNum === 28;
+              const dayMeetings = meetings.filter((m) => {
+                const parts = m.date.split('-');
+                return parts.length === 3 && parseInt(parts[2], 10) === dayNum;
+              });
+              const hasMeeting = dayMeetings.length > 0;
               return (
                 <div
                   key={i}
                   className={`min-h-[90px] p-2 rounded-xl border flex flex-col justify-between transition-all ${
                     hasMeeting
-                      ? 'bg-indigo-950/40 border-indigo-500/50 shadow-md'
+                      ? 'bg-cyan-950/40 border-cyan-500/50 shadow-md'
                       : 'bg-slate-950/50 border-slate-800/60 hover:border-slate-700'
                   }`}
                 >
-                  <span className={`text-xs font-mono font-bold ${hasMeeting ? 'text-indigo-300' : 'text-slate-500'}`}>
+                  <span className={`text-xs font-mono font-bold ${hasMeeting ? 'text-cyan-300' : 'text-slate-500'}`}>
                     {dayNum}
                   </span>
 
-                  {dayNum === 24 && (
-                    <div className="p-1.5 rounded-lg bg-indigo-900/60 border border-indigo-500/40 text-[10px] text-indigo-200 font-semibold truncate">
-                      🏢 Q1 Board Meeting (15:00)
+                  {dayMeetings.slice(0, 1).map((m) => (
+                    <div key={m.id} className="p-1.5 rounded-lg bg-cyan-900/60 border border-cyan-500/40 text-[10px] text-cyan-200 font-semibold truncate">
+                      🏢 {m.title}
                     </div>
-                  )}
-
-                  {dayNum === 28 && (
-                    <div className="p-1.5 rounded-lg bg-cyan-900/60 border border-cyan-500/40 text-[10px] text-cyan-200 font-semibold truncate">
-                      🛡️ SecOps Architecture (11:00)
-                    </div>
-                  )}
+                  ))}
                 </div>
               );
             })}
@@ -677,7 +678,7 @@ export const MeetingsCalendarApp: React.FC = () => {
             <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
               <span className="text-xs font-mono text-slate-400 uppercase">Charter Quorum Rule</span>
               <div className="text-2xl font-black text-white font-mono">60% Majority</div>
-              <p className="text-xs text-slate-400">At least 3 of 5 registered voting directors must be present.</p>
+              <p className="text-xs text-slate-400">At least 2 of 2 registered executive voting directors must be present.</p>
             </div>
 
             <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
@@ -697,46 +698,46 @@ export const MeetingsCalendarApp: React.FC = () => {
 
       {/* Modal: Schedule New Meeting */}
       {showScheduleModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-6 animate-fade-in-up">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-start justify-center p-4 pt-10 sm:pt-16 pb-12 overflow-y-auto animate-fade-in">
+          <div className="w-full max-w-xl rounded-2xl bg-[#090f1a] border border-[#1f2d40] p-6 sm:p-7 shadow-2xl space-y-5 shadow-cyan-950/40 relative">
+            <div className="flex items-start justify-between border-b border-[#141e2e] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-950 border border-indigo-500/40 text-indigo-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center">
                   <CalendarDays className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Schedule Board Meeting</h3>
+                  <h3 className="text-base font-bold text-white tracking-tight">Schedule Board Meeting</h3>
                   <span className="text-xs text-slate-400">Executive Governance Bridge</span>
                 </div>
               </div>
               <button
                 onClick={() => setShowScheduleModal(false)}
-                className="text-slate-400 hover:text-white text-sm"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800/60 transition-colors cursor-pointer"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateMeeting} className="space-y-4 text-xs">
-              <div className="space-y-1.5">
-                <label className="text-slate-300 font-semibold block">Meeting Title</label>
+            <form onSubmit={handleCreateMeeting} className="space-y-4">
+              <div>
+                <label className="text-slate-300 font-semibold block text-xs mb-1.5">Meeting Title <span className="text-cyan-400">*</span></label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Q4 Executive Strategy & Capital Allocation"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-[#0c1524] border border-[#1c293d] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/25 transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-300 font-semibold block">Assembly Type</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="text-slate-300 font-semibold block text-xs mb-1.5">Assembly Type</label>
                   <select
                     value={newType}
                     onChange={(e) => setNewType(e.target.value as any)}
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 bg-[#0c1524] border border-[#1c293d] rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/25 transition-all cursor-pointer"
                   >
                     <option value="Board of Directors">Board of Directors</option>
                     <option value="Executive Committee">Executive Committee</option>
@@ -745,69 +746,69 @@ export const MeetingsCalendarApp: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-slate-300 font-semibold block">Date</label>
+                <div>
+                  <label className="text-slate-300 font-semibold block text-xs mb-1.5">Date</label>
                   <input
                     type="date"
                     required
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
-                  >
-                  </input>
+                    className="w-full px-3.5 py-2.5 bg-[#0c1524] border border-[#1c293d] rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/25 transition-all"
+                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-slate-300 font-semibold block">Time Window (IST)</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="text-slate-300 font-semibold block text-xs mb-1.5">Time Window (IST)</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. 15:00 - 16:30 IST"
                     value={newTime}
                     onChange={(e) => setNewTime(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 bg-[#0c1524] border border-[#1c293d] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/25 transition-all"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-slate-300 font-semibold block">Location / Room</label>
+                <div>
+                  <label className="text-slate-300 font-semibold block text-xs mb-1.5">Location / Room</label>
                   <input
                     type="text"
                     required
                     placeholder="Encrypted Boardroom Bridge"
                     value={newLocation}
                     onChange={(e) => setNewLocation(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 bg-[#0c1524] border border-[#1c293d] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/25 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-slate-300 font-semibold block">Agenda Items (One per line)</label>
+              <div>
+                <label className="text-slate-300 font-semibold block text-xs mb-1.5">Agenda Items (One per line)</label>
                 <textarea
                   rows={3}
                   placeholder="1. Executive Update&#10;2. Treasury Review&#10;3. Resolution Vote"
                   value={newAgenda}
                   onChange={(e) => setNewAgenda(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-indigo-500 font-mono text-[11px]"
+                  className="w-full px-3.5 py-2 bg-[#0c1524] border border-[#1c293d] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/25 transition-all font-mono resize-none"
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-[#141e2e] flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowScheduleModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white"
+                  className="px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 text-xs font-semibold transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold"
+                  className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  Publish Assembly
+                  <Plus className="w-4 h-4" />
+                  <span>Publish Assembly</span>
                 </button>
               </div>
             </form>
