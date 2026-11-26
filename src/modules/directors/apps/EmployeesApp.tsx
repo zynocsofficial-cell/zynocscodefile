@@ -24,6 +24,7 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
+import { auditLogService } from '@/services/auditLogService';
 
 export interface EmployeeProfile {
   id: string;
@@ -204,6 +205,23 @@ export const EmployeesApp: React.FC = () => {
         }
         return emp;
       }));
+
+      auditLogService.logAction({
+        actor: {
+          name: 'Mohammed Khaja Moinuddin',
+          email: 'mohammed@zynocs.com',
+          role: 'Founder & Chairperson',
+          department: 'Executive Governance & HR',
+          avatarInitials: 'KM'
+        },
+        category: 'EMPLOYEES_HR',
+        action: 'EMPLOYEE_UPDATED',
+        entity: `StaffProfile #${name.trim()}`,
+        summary: `Updated employment profile & compensation tier for '${name.trim()}' (${role.trim()} in ${department})`,
+        details: { department, role: role.trim(), status },
+        node: 'directors.zynocs.com',
+        severity: 'INFO'
+      });
     } else {
       // Add new
       const newEmp: EmployeeProfile = {
@@ -223,6 +241,23 @@ export const EmployeesApp: React.FC = () => {
         notes: notes.trim()
       };
       setEmployees(prev => [newEmp, ...prev]);
+
+      auditLogService.logAction({
+        actor: {
+          name: 'Mohammed Khaja Moinuddin',
+          email: 'mohammed@zynocs.com',
+          role: 'Founder & Chairperson',
+          department: 'Executive Governance & HR',
+          avatarInitials: 'KM'
+        },
+        category: 'EMPLOYEES_HR',
+        action: 'EMPLOYEE_REGISTERED',
+        entity: `StaffProfile #${newEmp.name}`,
+        summary: `Onboarded new staff member '${newEmp.name}' as '${newEmp.role}' in department '${newEmp.department}' ($${Math.round(newEmp.salary).toLocaleString()}/yr)`,
+        details: { department: newEmp.department, role: newEmp.role, type: newEmp.type },
+        node: 'directors.zynocs.com',
+        severity: 'SUCCESS'
+      });
     }
 
     setIsAddModalOpen(false);

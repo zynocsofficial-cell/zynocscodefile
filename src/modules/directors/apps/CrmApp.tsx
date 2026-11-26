@@ -19,6 +19,7 @@ import {
   Sparkles,
   XCircle
 } from 'lucide-react';
+import { auditLogService } from '@/services/auditLogService';
 
 export type StageId = 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';
 
@@ -191,6 +192,25 @@ export const CrmApp: React.FC = () => {
             dateStr = `Lost ${monthNames[today.getMonth()]} ${today.getDate()}`;
           }
 
+          if (deal.stage !== targetStage) {
+            auditLogService.logAction({
+              actor: {
+                name: deal.assignee === 'MK' ? 'Mohammed Khaja Moinuddin' : 'Alex Rivera',
+                email: deal.assignee === 'MK' ? 'mohammed@zynocs.com' : 'alex.rivera@zynocs.com',
+                role: deal.assignee === 'MK' ? 'Founder & Chairperson' : 'Lead Account Executive',
+                department: 'Sales & Client Acquisition',
+                avatarInitials: deal.assignee || 'SE'
+              },
+              category: 'CRM_PIPELINE',
+              action: 'DEAL_STAGE_TRANSITION',
+              entity: `CrmDeal #${deal.company}`,
+              summary: `Moved enterprise lead '${deal.company} - ${deal.title}' from stage '${deal.stage.toUpperCase()}' to '${targetStage.toUpperCase()}' ($${Math.round(deal.amount * 1000).toLocaleString()})`,
+              details: { fromStage: deal.stage, toStage: targetStage, amount: deal.amount * 1000 },
+              node: 'work.zynocs.com',
+              severity: targetStage === 'won' ? 'SUCCESS' : targetStage === 'lost' ? 'WARNING' : 'INFO'
+            });
+          }
+
           return {
             ...deal,
             stage: targetStage,
@@ -227,6 +247,25 @@ export const CrmApp: React.FC = () => {
             dateStr = `Won ${monthNames[today.getMonth()]} ${today.getDate()}`;
           } else if (targetStage === 'lost') {
             dateStr = `Lost ${monthNames[today.getMonth()]} ${today.getDate()}`;
+          }
+
+          if (deal.stage !== targetStage) {
+            auditLogService.logAction({
+              actor: {
+                name: deal.assignee === 'MK' ? 'Mohammed Khaja Moinuddin' : 'Alex Rivera',
+                email: deal.assignee === 'MK' ? 'mohammed@zynocs.com' : 'alex.rivera@zynocs.com',
+                role: deal.assignee === 'MK' ? 'Founder & Chairperson' : 'Lead Account Executive',
+                department: 'Sales & Client Acquisition',
+                avatarInitials: deal.assignee || 'SE'
+              },
+              category: 'CRM_PIPELINE',
+              action: 'DEAL_STAGE_TRANSITION',
+              entity: `CrmDeal #${deal.company}`,
+              summary: `Moved enterprise lead '${deal.company} - ${deal.title}' from stage '${deal.stage.toUpperCase()}' to '${targetStage.toUpperCase()}' ($${Math.round(deal.amount * 1000).toLocaleString()})`,
+              details: { fromStage: deal.stage, toStage: targetStage, amount: deal.amount * 1000 },
+              node: 'work.zynocs.com',
+              severity: targetStage === 'won' ? 'SUCCESS' : targetStage === 'lost' ? 'WARNING' : 'INFO'
+            });
           }
 
           return {
@@ -280,6 +319,24 @@ export const CrmApp: React.FC = () => {
     };
 
     setDeals((prev) => [newDealItem, ...prev]);
+
+    auditLogService.logAction({
+      actor: {
+        name: isMK ? 'Mohammed Khaja Moinuddin' : 'Alex Rivera',
+        email: isMK ? 'mohammed@zynocs.com' : 'alex.rivera@zynocs.com',
+        role: isMK ? 'Founder & Chairperson' : 'Lead Account Executive',
+        department: 'Sales & Client Acquisition',
+        avatarInitials: newAssignee || 'SE'
+      },
+      category: 'CRM_PIPELINE',
+      action: 'DEAL_CREATED',
+      entity: `CrmDeal #${newDealItem.company}`,
+      summary: `Created new deal '${newDealItem.company} - ${newDealItem.title}' with pipeline value $${Math.round(parsedAmount * 1000).toLocaleString()} in stage '${newStage.toUpperCase()}'`,
+      details: { stage: newStage, amount: parsedAmount * 1000 },
+      node: 'work.zynocs.com',
+      severity: 'INFO'
+    });
+
     setCreateModalOpen(false);
     setNewCompany('');
     setNewTitle('');

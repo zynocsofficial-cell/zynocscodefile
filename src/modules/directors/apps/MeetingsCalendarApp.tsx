@@ -1014,9 +1014,9 @@ export const MeetingsCalendarApp: React.FC = () => {
             </div>
 
             <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
-              <span className="text-xs font-mono text-slate-400 uppercase">Hardware Key Verification</span>
+              <span className="text-xs font-mono text-slate-400 uppercase">Director Clearance Verification</span>
               <div className="text-2xl font-black text-emerald-400 font-mono">100% Enforced</div>
-              <p className="text-xs text-slate-400">FIDO2 passkey required to submit binding votes on resolutions.</p>
+              <p className="text-xs text-slate-400">Authenticated executive session required to submit binding votes on resolutions.</p>
             </div>
 
             <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">

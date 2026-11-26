@@ -340,31 +340,6 @@ class AuthService {
   }
 
   /**
-   * FIDO2 / WebAuthn Hardware Key Authentication
-   */
-  async authenticateFido2(subdomain: SubdomainId): Promise<AuthResponse> {
-    if (subdomain !== 'directors') {
-      return {
-        success: false,
-        error: 'Hardware FIDO2 Passkeys are currently restricted to the Executive Board of Directors.'
-      };
-    }
-
-    const directorUser: AuthUser = {
-      id: '11111111-1111-1111-1111-111111111111',
-      name: 'Mohammed Khaja Moinuddin (Chairperson)',
-      email: 'director@zynocs.com',
-      subdomain: 'directors.zynocs.com',
-      role: 'CHAIRPERSON_FOUNDER',
-      authMethod: 'FIDO2 / Hardware Security Token (YubiKey 5 NFC)',
-      token: this.generateToken('director@zynocs.com', 'directors')
-    };
-
-    this.saveSession(directorUser);
-    return { success: true, user: directorUser };
-  }
-
-  /**
    * Session Management
    */
   getCurrentSession(): AuthUser | null {

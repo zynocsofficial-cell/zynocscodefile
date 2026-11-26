@@ -17,6 +17,7 @@ import {
   X
 } from 'lucide-react';
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
+import { auditLogService } from '@/services/auditLogService';
 
 export interface LedgerEntry {
   id: string;
@@ -76,6 +77,24 @@ export const AccountsApp: React.FC = () => {
     };
 
     setLedger(prev => [newEntry, ...prev]);
+
+    auditLogService.logAction({
+      actor: {
+        name: 'Ananya Roy',
+        email: 'ananya@zynocs.com',
+        role: 'Chief Accountant',
+        department: 'Finance & Treasury',
+        avatarInitials: 'AR'
+      },
+      category: 'ACCOUNTS_TREASURY',
+      action: type === 'Inflow' ? 'INFLOW_RECORDED' : 'OUTFLOW_RECORDED',
+      entity: `LedgerEntry #${newEntry.ref}`,
+      summary: `Recorded ${type.toLowerCase()} of $${newEntry.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })} for '${newEntry.entity}' (${newEntry.category})`,
+      details: { amount: newEntry.amount, type, status },
+      node: 'work.zynocs.com',
+      severity: type === 'Inflow' ? 'SUCCESS' : 'INFO'
+    });
+
     setEntity('');
     setRef('');
     setCategory('');

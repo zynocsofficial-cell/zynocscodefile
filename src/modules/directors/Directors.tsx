@@ -51,7 +51,8 @@ import {
   User,
   UserCheck,
   Edit3,
-  Trash2
+  Trash2,
+  ScrollText
 } from 'lucide-react';
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
 import { Section, SubdomainId } from '@/types';
@@ -68,6 +69,7 @@ import { AccountsApp } from './apps/AccountsApp';
 import { CodeReposApp } from './apps/CodeReposApp';
 import { EmployeesApp } from './apps/EmployeesApp';
 import { FreelancersApp } from './apps/FreelancersApp';
+import { LogsApp } from './apps/LogsApp';
 import { getRootDomainUrl } from '@/services/authService';
 import { MeetingsCalendarApp } from './apps/MeetingsCalendarApp';
 import { DirectorProfileSettings } from './profile/DirectorProfileSettings';
@@ -90,6 +92,9 @@ interface DirectorsProps {
 }
 
 export type AppId = 
+  | 'dashboard'
+  | 'profile'
+  | 'logs'
   | 'roles_preview'
   | 'architecture' 
   | 'crm' 
@@ -122,12 +127,11 @@ export const Directors: React.FC<DirectorsProps> = ({
   onSignOut,
   onNavigate
 }) => {
-  // Navigation States: Sidebar Tab + Selected App + Sidebar Collapsed
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'apps' | 'profile'>('dashboard');
-  const [selectedApp, setSelectedApp] = useState<AppId | null>(null);
+  // Navigation States: Selected App (defaults to dashboard app) + Sidebar Collapsed (closed by default)
+  const [selectedApp, setSelectedApp] = useState<AppId | null>('dashboard');
   const [selectedAppsCategory, setSelectedAppsCategory] = useState<'all' | 'enterprise' | 'others'>('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   // Temporary Key Generator State
   const [inviteEmail, setInviteEmail] = useState('');
@@ -312,7 +316,7 @@ export const Directors: React.FC<DirectorsProps> = ({
     window.addEventListener('storage', refreshData);
     refreshData();
     return () => window.removeEventListener('storage', refreshData);
-  }, [activeTab]);
+  }, [selectedApp]);
 
   const totalPipeline = crmDeals
     .filter(d => d.stage !== 'Lost')
@@ -410,6 +414,39 @@ export const Directors: React.FC<DirectorsProps> = ({
 
   // Applications Catalog Configuration (Arranged as requested)
   const APPS_LIST: AppMeta[] = [
+    {
+      id: 'dashboard',
+      name: 'Executive Dashboard & Telemetry',
+      category: 'Enterprise Management',
+      description: 'Real-time executive performance metrics, deal pipeline, treasury reserves, active contracts, and board voting resolutions.',
+      badge: 'Executive Cockpit',
+      badgeColor: 'bg-cyan-950/60 text-cyan-400 border-cyan-500/30',
+      icon: LayoutDashboard,
+      iconColor: 'text-cyan-400',
+      iconBg: 'bg-cyan-950/50 border-cyan-500/30 shadow-cyan-500/10'
+    },
+    {
+      id: 'profile',
+      name: 'Director Profile & Settings',
+      category: 'Enterprise Management',
+      description: 'Manage executive boardroom dossier, public legal identity, active session security, and corporate credentials.',
+      badge: 'Profile & Settings',
+      badgeColor: 'bg-cyan-950/60 text-cyan-400 border-cyan-500/30',
+      icon: Settings,
+      iconColor: 'text-cyan-400',
+      iconBg: 'bg-cyan-950/50 border-cyan-500/30 shadow-cyan-500/10'
+    },
+    {
+      id: 'logs',
+      name: 'Enterprise Activity Logs',
+      category: 'Enterprise Management',
+      description: 'Immutable, tamper-evident real-time audit ledger tracking every action, lead stage change, financial settlement, and employee event across all corporate roles.',
+      badge: 'Live WAL Audit (Immutable)',
+      badgeColor: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30',
+      icon: ScrollText,
+      iconColor: 'text-emerald-400',
+      iconBg: 'bg-emerald-950/50 border-emerald-500/30 shadow-emerald-500/10'
+    },
     {
       id: 'crm',
       name: 'Enterprise CRM & Pipeline',
@@ -664,34 +701,15 @@ export const Directors: React.FC<DirectorsProps> = ({
               Main Menu
             </span>
 
-            {/* Link: Dashboard */}
-            <button
-              onClick={() => {
-                setActiveTab('dashboard');
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeTab === 'dashboard'
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Dashboard</span>
-            </button>
-
             {/* Link: Apps */}
             <button
               onClick={() => {
-                setActiveTab('apps');
                 setSelectedApp(null);
                 setMobileMenuOpen(false);
               }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeTab === 'apps' && selectedApp === null
+                selectedApp === null
                   ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
-                  : activeTab === 'apps'
-                  ? 'bg-slate-900 text-cyan-400 font-bold'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
@@ -700,30 +718,10 @@ export const Directors: React.FC<DirectorsProps> = ({
                 <span>Apps</span>
               </div>
               <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                activeTab === 'apps' && selectedApp === null ? 'bg-slate-950 text-cyan-300' : 'bg-slate-800 text-slate-300'
+                selectedApp === null ? 'bg-slate-950 text-cyan-300' : 'bg-slate-800 text-slate-300'
               }`}>
                 {APPS_LIST.length}
               </span>
-            </button>
-
-            {/* Link: Director Profile & Settings */}
-            <button
-              onClick={() => {
-                setActiveTab('profile');
-                setSelectedApp(null);
-                setMobileMenuOpen(false);
-              }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeTab === 'profile'
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-lg shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Settings className="w-4 h-4" />
-                <span>Profile & Settings</span>
-              </div>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             </button>
           </div>
 
@@ -775,34 +773,17 @@ export const Directors: React.FC<DirectorsProps> = ({
               <span className="text-slate-500">Directors</span>
               <span className="text-slate-600">/</span>
               <button 
-                onClick={() => { setActiveTab('dashboard'); setSelectedApp(null); }}
-                className={`${activeTab === 'dashboard' ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-white'}`}
+                onClick={() => setSelectedApp(null)}
+                className={`${selectedApp === null ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-white'}`}
               >
-                Dashboard
+                Apps
               </button>
-              {activeTab === 'apps' && (
-                <>
-                  <span className="text-slate-600">/</span>
-                  <button 
-                    onClick={() => setSelectedApp(null)}
-                    className={`${selectedApp === null ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-white'}`}
-                  >
-                    Apps
-                  </button>
-                </>
-              )}
-              {activeTab === 'apps' && selectedApp && (
+              {selectedApp !== null && (
                 <>
                   <span className="text-slate-600">/</span>
                   <span className="text-cyan-300 font-bold">
                     {APPS_LIST.find(a => a.id === selectedApp)?.name}
                   </span>
-                </>
-              )}
-              {activeTab === 'profile' && (
-                <>
-                  <span className="text-slate-600">/</span>
-                  <span className="text-cyan-300 font-bold">Director Profile & Settings</span>
                 </>
               )}
             </div>
@@ -811,12 +792,9 @@ export const Directors: React.FC<DirectorsProps> = ({
           <div className="flex items-center gap-3">
             {/* Enhanced Executive Profile & Settings Button */}
             <button
-              onClick={() => {
-                setActiveTab('profile');
-                setSelectedApp(null);
-              }}
+              onClick={() => setSelectedApp('profile')}
               className={`group flex items-center gap-3 px-3.5 py-2 rounded-2xl border transition-all duration-200 shadow-sm cursor-pointer ${
-                activeTab === 'profile'
+                selectedApp === 'profile'
                   ? 'bg-cyan-500/15 border-cyan-500/50 text-white shadow-cyan-500/10 shadow-lg ring-1 ring-cyan-500/30'
                   : 'bg-slate-900/90 hover:bg-slate-800/90 border-slate-800 hover:border-slate-700 text-slate-200'
               }`}
@@ -834,7 +812,7 @@ export const Directors: React.FC<DirectorsProps> = ({
                   <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
                     Profile & Settings
                   </span>
-                  <Settings className={`w-3.5 h-3.5 transition-all duration-300 ${activeTab === 'profile' ? 'text-cyan-400 rotate-90' : 'text-slate-400 group-hover:rotate-45 group-hover:text-cyan-400'}`} />
+                  <Settings className={`w-3.5 h-3.5 transition-all duration-300 ${selectedApp === 'profile' ? 'text-cyan-400 rotate-90' : 'text-slate-400 group-hover:rotate-45 group-hover:text-cyan-400'}`} />
                 </div>
                 <span className="text-[10px] text-slate-400 font-mono leading-none truncate max-w-[140px] mt-0.5">
                   {user.name}
@@ -848,11 +826,22 @@ export const Directors: React.FC<DirectorsProps> = ({
         <div className="p-6 sm:p-8 lg:p-10 space-y-8 flex-1">
           
           {/* ========================================================================= */}
-          {/* VIEW A: COMPLETE DASHBOARD */}
+          {/* VIEW A: EXECUTIVE DASHBOARD & TELEMETRY (Dedicated App) */}
           {/* ========================================================================= */}
-          {activeTab === 'dashboard' && (
+          {selectedApp === 'dashboard' && (
             <div className="space-y-8 animate-fade-in-up">
               
+              {/* Back to All Apps Navigation Bar */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <button
+                  onClick={() => setSelectedApp(null)}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all group cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Back to All Apps</span>
+                </button>
+              </div>
+
               {/* Dashboard Title & Welcome Greeting */}
               <div className="space-y-1">
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -1108,9 +1097,9 @@ export const Directors: React.FC<DirectorsProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* VIEW B1: APPS CATALOG GRID (When "Apps" is clicked in sidebar) */}
+          {/* VIEW B1: APPS CATALOG GRID (When "Apps" is clicked or selectedApp === null) */}
           {/* ========================================================================= */}
-          {activeTab === 'apps' && selectedApp === null && (() => {
+          {selectedApp === null && (() => {
             const enterpriseApps = APPS_LIST.filter(a => a.category !== 'Others');
             const otherApps = APPS_LIST.filter(a => a.category === 'Others');
 
@@ -1252,7 +1241,7 @@ export const Directors: React.FC<DirectorsProps> = ({
           {/* ========================================================================= */}
           {/* VIEW B2: APP DETAIL VIEW (When an App Card is clicked) */}
           {/* ========================================================================= */}
-          {activeTab === 'apps' && selectedApp !== null && (
+          {selectedApp !== null && selectedApp !== 'dashboard' && selectedApp !== 'profile' && (
             <div className="space-y-6 animate-fade-in-up">
               
               {/* Back to Apps Navigation Bar */}
@@ -1267,6 +1256,7 @@ export const Directors: React.FC<DirectorsProps> = ({
               </div>
 
               {/* Render the Selected App */}
+              {selectedApp === 'logs' && <LogsApp />}
               {selectedApp === 'roles_preview' && <RolesPreviewApp onLaunchRole={(config) => setSimulatedRole(config)} />}
               {selectedApp === 'architecture' && <ArchitectureDesignsApp />}
               {selectedApp === 'crm' && <CrmApp />}
@@ -1286,10 +1276,22 @@ export const Directors: React.FC<DirectorsProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* VIEW C: DIRECTOR PROFILE & EXECUTIVE SETTINGS */}
+          {/* VIEW C: DIRECTOR PROFILE & EXECUTIVE SETTINGS (Dedicated App) */}
           {/* ========================================================================= */}
-          {activeTab === 'profile' && (
-            <DirectorProfileSettings user={user} onSignOut={onSignOut} />
+          {selectedApp === 'profile' && (
+            <div className="space-y-6 animate-fade-in-up">
+              {/* Back to Apps Navigation Bar */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <button
+                  onClick={() => setSelectedApp(null)}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all group cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Back to All Apps</span>
+                </button>
+              </div>
+              <DirectorProfileSettings user={user} onSignOut={onSignOut} />
+            </div>
           )}
 
           {/* Modal: Propose Resolution */}

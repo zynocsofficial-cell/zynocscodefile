@@ -97,7 +97,7 @@ const DEFAULT_REPOS: Repository[] = [
     id: 'repo-4',
     name: 'zynocs-auth-vault',
     visibility: 'Internal Core',
-    description: 'Zero-trust FIDO2 passkey cryptographic authentication engine & session revocation middleware.',
+    description: 'Zero-trust cryptographic authentication engine & session revocation middleware.',
     language: 'Go / Security',
     langColor: 'bg-emerald-400',
     branch: 'main',

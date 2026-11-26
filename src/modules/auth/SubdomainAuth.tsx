@@ -50,8 +50,6 @@ interface SubdomainMeta {
   emailPlaceholder: string;
   emailLabel: string;
   signupTabLabel: string;
-  altAuthLabel?: string;
-  altAuthType?: 'passkey' | 'google' | 'magic_link' | 'google_sponsor';
 }
 
 export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({ 
@@ -76,8 +74,6 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
     onAuthStateChange?.(authenticatedUser);
   }, [authenticatedUser, onAuthStateChange]);
   const [copiedUrl, setCopiedUrl] = useState(false);
-  const [passkeyModalOpen, setPasskeyModalOpen] = useState(false);
-  const [passkeyScanning, setPasskeyScanning] = useState(false);
 
   // Form Fields
   const [email, setEmail] = useState('');
@@ -114,9 +110,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       subtitle: 'Milestone tracking, staging previews, and billing.',
       emailLabel: 'Client Work Email',
       emailPlaceholder: 'cto@yourcompany.com',
-      signupTabLabel: 'Activate Contract',
-      altAuthLabel: 'Send One-Click Magic Login Link',
-      altAuthType: 'magic_link'
+      signupTabLabel: 'Activate Contract'
     },
     work: {
       id: 'work',
@@ -129,9 +123,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       subtitle: 'Engineering sprints, deployment pipelines, and internal tools.',
       emailLabel: 'Corporate Work Email',
       emailPlaceholder: 'name@zynocs.com',
-      signupTabLabel: 'Activate Staff',
-      altAuthLabel: 'Sign in with Google Workspace (@zynocs.com)',
-      altAuthType: 'google'
+      signupTabLabel: 'Activate Staff'
     },
     directors: {
       id: 'directors',
@@ -144,9 +136,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       subtitle: 'Restricted to appointed Directors, Chairperson, and CEO.',
       emailLabel: 'Director Corporate Email',
       emailPlaceholder: 'director@zynocs.com',
-      signupTabLabel: 'Appointment',
-      altAuthLabel: 'Authenticate with FIDO2 Passkey / TouchID',
-      altAuthType: 'passkey'
+      signupTabLabel: 'Appointment'
     },
     sponsors: {
       id: 'sponsors',
@@ -159,9 +149,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       subtitle: 'Live campaign telemetry, CTR analytics, and creative studio.',
       emailLabel: 'Brand Work Email',
       emailPlaceholder: 'marketing@brand.com',
-      signupTabLabel: 'Create Account',
-      altAuthLabel: 'Continue with Google Account',
-      altAuthType: 'google_sponsor'
+      signupTabLabel: 'Create Account'
     },
     ads: {
       id: 'ads',
@@ -187,9 +175,7 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       subtitle: 'One master account connecting all Zynocs enterprise services.',
       emailLabel: 'Zynocs Account Email',
       emailPlaceholder: 'user@domain.com',
-      signupTabLabel: 'Register ID',
-      altAuthLabel: 'Continue with Google Account',
-      altAuthType: 'google'
+      signupTabLabel: 'Register ID'
     }
   };
 
@@ -316,39 +302,6 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
       setErrorMessage(err?.message || 'Activation failed.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleTriggerPasskey = async () => {
-    setPasskeyModalOpen(true);
-    setPasskeyScanning(true);
-    setErrorMessage('');
-
-    try {
-      // Hardware biometric challenge simulation
-      await new Promise((resolve) => setTimeout(resolve, 1400));
-      const res = await authService.authenticateFido2(activeSubdomain);
-      setPasskeyScanning(false);
-      if (res.success && res.user) {
-        const user = res.user;
-        setTimeout(() => {
-          setPasskeyModalOpen(false);
-          const currentSub = getCurrentSubdomainFromUrl();
-          const isLocalhost = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
-          if (isLocalhost && currentSub !== activeSubdomain) {
-            window.location.href = buildSubdomainUrl(activeSubdomain, user.token);
-            return;
-          }
-          setAuthenticatedUser(user);
-        }, 500);
-      } else {
-        setPasskeyModalOpen(false);
-        setErrorMessage(res.error || 'FIDO2 Passkey verification failed.');
-      }
-    } catch (err: any) {
-      setPasskeyScanning(false);
-      setPasskeyModalOpen(false);
-      setErrorMessage('Passkey hardware handshake failed.');
     }
   };
 
@@ -641,76 +594,6 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
                         </>
                       )}
                     </button>
-
-                    {/* Integrated Subdomain Alternative Action (Consistent Slot, Never Displaces Boxes) */}
-                    {current.altAuthLabel && (
-                      <div className="pt-0.5">
-                        {current.altAuthType === 'passkey' && (
-                          <button
-                            type="button"
-                            onClick={handleTriggerPasskey}
-                            className="w-full py-2.5 px-3 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/40 border border-cyan-500/30 text-cyan-300 hover:text-cyan-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
-                          >
-                            <Fingerprint className="w-4 h-4" />
-                            <span>{current.altAuthLabel}</span>
-                          </button>
-                        )}
-
-                        {current.altAuthType === 'google' && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!email) {
-                                setErrorMessage('Please enter your corporate @zynocs.com email address above first.');
-                                return;
-                              }
-                              setErrorMessage('');
-                              alert(`Redirecting to Google Workspace SSO for ${email}...`);
-                            }}
-                            className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-emerald-500/40 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all"
-                          >
-                            <Globe className="w-4 h-4 text-emerald-400" />
-                            <span>{current.altAuthLabel}</span>
-                          </button>
-                        )}
-
-                        {current.altAuthType === 'google_sponsor' && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!email) {
-                                setErrorMessage('Please enter your brand corporate email above first.');
-                                return;
-                              }
-                              setErrorMessage('');
-                              alert(`Connecting to Google Workspace Identity for ${email}...`);
-                            }}
-                            className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/40 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all"
-                          >
-                            <Globe className="w-4 h-4 text-amber-400" />
-                            <span>{current.altAuthLabel}</span>
-                          </button>
-                        )}
-
-                        {current.altAuthType === 'magic_link' && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!email) {
-                                setErrorMessage('Please enter your client corporate work email above first.');
-                                return;
-                              }
-                              setErrorMessage('');
-                              alert(`Passwordless Magic Login link dispatched to ${email}. Check your inbox!`);
-                            }}
-                            className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-brand-500/40 text-slate-300 hover:text-brand-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
-                          >
-                            <Sparkles className="w-4 h-4 text-brand-400" />
-                            <span>{current.altAuthLabel}</span>
-                          </button>
-                        )}
-                      </div>
-                    )}
                   </div>
 
                 </form>
@@ -1126,35 +1009,6 @@ export const SubdomainAuth: React.FC<SubdomainAuthProps> = ({
         </SpotlightCard>
 
       </div>
-
-      {/* Interactive Passkey Biometric Scanning Modal for Directors */}
-      {passkeyModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
-          <div className="p-6 rounded-3xl bg-slate-900 border border-cyan-500/40 shadow-2xl max-w-sm w-full text-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mx-auto">
-              <Fingerprint className={`w-8 h-8 ${passkeyScanning ? 'animate-pulse text-cyan-300' : 'text-emerald-400'}`} />
-            </div>
-
-            <div className="space-y-1">
-              <h3 className="text-base font-bold text-white">
-                {passkeyScanning ? 'Touch Security Key / Sensor' : 'Passkey Authenticated'}
-              </h3>
-              <p className="text-xs text-slate-400">
-                {passkeyScanning 
-                  ? 'Verifying FIDO2 cryptographic token for Board of Directors clearance...'
-                  : 'Hardware signature matched. Forwarding to boardroom...'}
-              </p>
-            </div>
-
-            {passkeyScanning && (
-              <div className="flex items-center justify-center gap-2 text-xs text-cyan-400 font-mono">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Awaiting touch verification...</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
     </div>
   );

@@ -28,7 +28,8 @@ import {
   Fingerprint,
   LogOut,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  ShieldCheck
 } from 'lucide-react';
 import { SpotlightCard } from '@/components/ui/SpotlightCard';
 
@@ -60,7 +61,6 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
   const [isSaved, setIsSaved] = useState(false);
 
   // Security State
-  const [fidoKeyName, setFidoKeyName] = useState('YubiKey 5 NFC (Primary Executive Token)');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -204,8 +204,9 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
                   <Shield className="w-3 h-3 text-cyan-400" />
                   Tier-1 Executive Boardroom
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
-                  FIDO2 Active
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  Authorized Director
                 </span>
               </div>
               <p className="text-sm font-semibold text-slate-300">{officialTitle}</p>
@@ -249,7 +250,7 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
             }`}
           >
             <KeyRound className="w-4 h-4" />
-            <span>Security & Passkeys</span>
+            <span>Security & Master Password</span>
           </button>
 
           <button
@@ -431,34 +432,37 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* FIDO2 Hardware Key */}
+            {/* Identity & Access Clearance */}
             <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-400 flex items-center justify-center">
-                    <Fingerprint className="w-5 h-5" />
+                    <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-white">FIDO2 Hardware Key</h3>
-                    <span className="text-xs text-slate-400">WebAuthn / USB-C & NFC Token</span>
+                    <h3 className="text-base font-bold text-white">Boardroom Identity Clearance</h3>
+                    <span className="text-xs text-slate-400">PostgreSQL 18 RBAC Verified</span>
                   </div>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-500/40">
-                  Enforced
+                  Verified
                 </span>
               </div>
 
               <p className="text-xs text-slate-400 leading-relaxed">
-                Cryptographic hardware authentication ensures zero credential theft or phishing attacks on the Board of Directors console.
+                Direct corporate authentication bound to your official executive credentials. All actions are cryptographically signed to your director seat.
               </p>
 
               <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1 font-mono text-[11px]">
-                <div className="text-slate-300 font-bold">{fidoKeyName}</div>
-                <div className="text-slate-500">Serial: 99482-YUBI-ENT • Registered on 2024-02-14</div>
+                <div className="text-slate-300 font-bold">{fullName} • {officialTitle}</div>
+                <div className="text-slate-500">Corporate Email: {emailAddress}</div>
               </div>
 
-              <button className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all">
-                + Register Backup Security Key
+              <button 
+                onClick={() => setActiveTab('sessions')}
+                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all cursor-pointer"
+              >
+                View Active Sessions
               </button>
             </div>
 
@@ -639,7 +643,7 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
             <div>
               <h3 className="text-lg font-bold text-white">Active Cryptographic Sessions</h3>
               <p className="text-xs text-slate-400 mt-1">
-                Devices authorized to access <code>directors.zynocs.com</code> via FIDO2 passkeys.
+                Devices authorized to access <code>directors.zynocs.com</code> with active executive sessions.
               </p>
             </div>
 
