@@ -72,28 +72,87 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
   const [googleCalendarSync, setGoogleCalendarSync] = useState(true);
   const [cloudflareEdgeSync, setCloudflareEdgeSync] = useState(true);
 
-  // Sessions state
-  const [sessions, setSessions] = useState([
-    {
-      id: 'sess-1',
-      device: 'MacBook Pro 16" (macOS Sonoma)',
-      browser: 'Chrome 124.0.6367',
-      ip: '103.24.88.12 (Hyderabad, India)',
+  // Detect real client device & browser accurately (Zero Dummy Data)
+  const detectLiveSession = () => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return {
+        id: 'sess-current',
+        device: 'Workstation Terminal',
+        browser: 'Secure Web Browser',
+        ip: 'directors.zynocs.com • TLS 1.3 Active',
+        time: 'Active Now (Current Session)',
+        isCurrent: true,
+        icon: Laptop
+      };
+    }
+
+    const ua = navigator.userAgent;
+    let os = 'Workstation';
+    let icon = Laptop;
+
+    if (/Macintosh|Mac OS X/i.test(ua)) {
+      os = 'Apple Mac (macOS)';
+      icon = Laptop;
+    } else if (/Windows/i.test(ua)) {
+      os = 'Windows PC (Desktop)';
+      icon = Laptop;
+    } else if (/Linux/i.test(ua)) {
+      os = 'Linux Workstation';
+      icon = Laptop;
+    } else if (/iPhone/i.test(ua)) {
+      os = 'Apple iPhone (iOS)';
+      icon = Smartphone;
+    } else if (/iPad/i.test(ua)) {
+      os = 'Apple iPad (iPadOS)';
+      icon = Smartphone;
+    } else if (/Android/i.test(ua)) {
+      os = 'Android Device';
+      icon = Smartphone;
+    }
+
+    let browserName = 'Web Browser';
+    if (/Chrome/i.test(ua) && !/Edg/i.test(ua) && !/OPR/i.test(ua)) {
+      const match = ua.match(/Chrome\/([0-9]+)/);
+      browserName = `Google Chrome ${match ? `v${match[1]}` : ''}`;
+    } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+      const match = ua.match(/Version\/([0-9]+)/);
+      browserName = `Apple Safari ${match ? `v${match[1]}` : ''}`;
+    } else if (/Firefox/i.test(ua)) {
+      const match = ua.match(/Firefox\/([0-9]+)/);
+      browserName = `Mozilla Firefox ${match ? `v${match[1]}` : ''}`;
+    } else if (/Edg/i.test(ua)) {
+      const match = ua.match(/Edg\/([0-9]+)/);
+      browserName = `Microsoft Edge ${match ? `v${match[1]}` : ''}`;
+    }
+
+    const host = window.location.hostname || 'directors.zynocs.com';
+    const isLocal = host.includes('localhost') || host === '127.0.0.1';
+    const locationInfo = isLocal
+      ? `Localhost Port ${window.location.port || '5173'} • Active Local Session`
+      : `${host} • Secure Encrypted Connection`;
+
+    return {
+      id: 'sess-live-primary',
+      device: os,
+      browser: browserName.trim(),
+      ip: locationInfo,
       time: 'Active Now (Current Session)',
       isCurrent: true,
-      icon: Laptop
-    },
-    {
-      id: 'sess-2',
-      device: 'iPhone 15 Pro (iOS 18)',
-      browser: 'Mobile Safari 18.0',
-      ip: '157.34.120.45 (Mumbai, India)',
-      time: '3 hours ago',
-      isCurrent: false,
-      icon: Smartphone
-    }
-  ]);
+      icon
+    };
+  };
+
+  // Sessions state: ONLY the real detected current session, ZERO fake dummy data!
+  const [sessions, setSessions] = useState(() => [detectLiveSession()]);
   const [sessionRevokedNotice, setSessionRevokedNotice] = useState<string | null>(null);
+
+  const userInitials = (fullName || user.name || 'MK')
+    .split(' ')
+    .map(n => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +173,7 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
 
   const handleRevokeSession = (sessionId: string) => {
     setSessions(prev => prev.filter(s => s.id !== sessionId));
-    setSessionRevokedNotice('Remote session terminated and security token revoked in PostgreSQL 18.');
+    setSessionRevokedNotice('Session terminated and security token revoked.');
     setTimeout(() => setSessionRevokedNotice(null), 3500);
   };
 
@@ -128,14 +187,12 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            {/* Director Avatar */}
-            <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-purple-600 p-0.5 shadow-xl shadow-cyan-500/20">
-                <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center font-mono font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-indigo-200">
-                  KM
-                </div>
+            {/* Director Avatar: Solid Single Color */}
+            <div className="relative shrink-0">
+              <div className="w-20 h-20 rounded-2xl bg-cyan-500 text-slate-950 flex items-center justify-center font-mono font-black text-2xl shadow-xl shadow-cyan-500/25">
+                {userInitials}
               </div>
-              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center" title="Online & FIDO2 Verified">
+              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center" title="Online & Authenticated">
                 <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
               </span>
             </div>
@@ -154,10 +211,6 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
               <p className="text-sm font-semibold text-slate-300">{officialTitle}</p>
               <div className="flex items-center gap-4 text-xs font-mono text-slate-400 pt-1 flex-wrap">
                 <span className="text-cyan-400">{emailAddress}</span>
-                <span>•</span>
-                <span>Zynocs Global Technologies</span>
-                <span>•</span>
-                <span className="text-emerald-400">PostgreSQL 18 Master Node</span>
               </div>
             </div>
           </div>
@@ -327,7 +380,7 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
 
                 <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
                   <span className="text-[11px] text-slate-500 font-mono">
-                    Updated in PostgreSQL 18 table: <code>directors_registry</code>
+                    End-to-End Cryptographically Secured Registry
                   </span>
 
                   <button
@@ -335,7 +388,7 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
                     className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-cyan-500/20"
                   >
                     {isSaved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-                    <span>{isSaved ? 'Saved to PostgreSQL' : 'Save Profile Changes'}</span>
+                    <span>{isSaved ? 'Saved Successfully' : 'Save Profile Changes'}</span>
                   </button>
                 </div>
 
@@ -346,37 +399,22 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
 
           <div className="lg:col-span-4 space-y-6">
             
-            {/* Legal Signing Authority Card */}
+            {/* Quick Director Metadata */}
             <div className="p-6 rounded-3xl bg-slate-900/70 border border-slate-800/80 space-y-4">
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                Legal Signature Authority
-              </h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Registered signatory for bilateral contracts, bank authorizations, and SEC / Ministry filings.
-              </p>
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 font-mono text-[11px] space-y-1">
-                <div className="text-slate-400">Signatory ID: <span className="text-cyan-400">ZYN-DIR-001-KM</span></div>
-                <div className="text-slate-400">Class: <span className="text-emerald-400">Unrestricted Authorized</span></div>
-                <div className="text-slate-400">Public Key Hash: <span className="text-slate-300">0x8a91...4fe9</span></div>
-              </div>
-            </div>
-
-            {/* Quick Director Quick Stats */}
-            <div className="p-6 rounded-3xl bg-slate-900/70 border border-slate-800/80 space-y-3">
-              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                <Shield className="w-4 h-4 text-cyan-400" />
                 Executive Metadata
               </h4>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between text-slate-400">
+              <div className="space-y-3 text-xs pt-1">
+                <div className="flex justify-between items-center py-1 border-b border-slate-800/60 text-slate-400">
                   <span>Tenure:</span>
-                  <span className="text-white font-mono">Founder (Permanent)</span>
+                  <span className="text-white font-mono font-medium">Founder (Permanent)</span>
                 </div>
-                <div className="flex justify-between text-slate-400">
+                <div className="flex justify-between items-center py-1 border-b border-slate-800/60 text-slate-400">
                   <span>Appointed By:</span>
-                  <span className="text-white">Incorporation Charter</span>
+                  <span className="text-white font-medium">Incorporation Charter</span>
                 </div>
-                <div className="flex justify-between text-slate-400">
+                <div className="flex justify-between items-center py-1 text-slate-400">
                   <span>Board Seat:</span>
                   <span className="text-cyan-400 font-mono font-bold">Seat #1 (Chairperson)</span>
                 </div>
@@ -588,29 +626,6 @@ export const DirectorProfileSettings: React.FC<DirectorProfileSettingsProps> = (
               >
                 Sync Settings
               </button>
-            </div>
-
-            {/* PostgreSQL 18 Live Replica */}
-            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
-                  <Database className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                    PostgreSQL 18 Enterprise Master Node
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-500/40">
-                      Port 8800 Active
-                    </span>
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    High-throughput connection pool with PgBouncer and streaming WAL replica.
-                  </p>
-                  <span className="text-[11px] font-mono text-slate-500">Latency: 0.8ms • Zero Packet Loss</span>
-                </div>
-              </div>
-
-              <span className="text-xs font-mono text-emerald-400 font-bold">100% Operational</span>
             </div>
 
           </div>

@@ -79,11 +79,15 @@ export const MeetingsCalendarApp: React.FC = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(meetings));
   }, [meetings]);
 
-  const [viewMode, setViewMode] = useState<'schedule' | 'calendar' | 'quorum'>('schedule');
+  const [viewMode, setViewMode] = useState<'calendar' | 'schedule' | 'quorum'>('calendar');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('All');
+
+  // Calendar Date Navigation (Default to Nov 2026 / current date)
+  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 10, 26)); // Nov 26, 2026
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>('2026-11-28');
 
   // New Meeting Form State
   const [newTitle, setNewTitle] = useState('');
@@ -178,33 +182,33 @@ export const MeetingsCalendarApp: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* View Mode Switcher */}
+          {/* View Mode Switcher - Calendar Month View first */}
           <div className="flex items-center p-1 rounded-xl bg-slate-950/80 border border-slate-800">
             <button
-              onClick={() => setViewMode('schedule')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'schedule'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Agenda & Meetings
-            </button>
-            <button
               onClick={() => setViewMode('calendar')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === 'calendar'
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
               Calendar Month View
             </button>
             <button
+              onClick={() => setViewMode('schedule')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                viewMode === 'schedule'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Agenda & Meetings
+            </button>
+            <button
               onClick={() => setViewMode('quorum')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === 'quorum'
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -213,7 +217,10 @@ export const MeetingsCalendarApp: React.FC = () => {
           </div>
 
           <button
-            onClick={() => setShowScheduleModal(true)}
+            onClick={() => {
+              setNewDate(selectedCalendarDate || '2026-11-28');
+              setShowScheduleModal(true);
+            }}
             className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 flex items-center gap-2 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
@@ -222,63 +229,65 @@ export const MeetingsCalendarApp: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Telemetry Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Next Executive Meeting</span>
-            <Clock className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="text-lg font-black text-white mt-2 font-mono">
-            {meetings.length > 0 ? `${meetings[0].date}` : 'None Scheduled'}
-          </div>
-          <div className="text-[11px] text-cyan-400 mt-1 flex items-center gap-1 font-mono">
-            {meetings.length > 0 ? (
-              <>
-                <CheckCircle2 className="w-3.5 h-3.5" /> Quorum {meetings[0].quorum.status} ({meetings[0].quorum.confirmed}/{meetings[0].quorum.required})
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="w-3.5 h-3.5" /> Clean Assembly Schedule
-              </>
-            )}
-          </div>
-        </SpotlightCard>
+      {/* Quick Telemetry Cards: ONLY shown in Agenda & Meetings mode (hidden in Calendar view) */}
+      {viewMode === 'schedule' && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>Next Executive Meeting</span>
+              <Clock className="w-4 h-4 text-cyan-400" />
+            </div>
+            <div className="text-lg font-black text-white mt-2 font-mono">
+              {meetings.length > 0 ? `${meetings[0].date}` : 'None Scheduled'}
+            </div>
+            <div className="text-[11px] text-cyan-400 mt-1 flex items-center gap-1 font-mono">
+              {meetings.length > 0 ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Quorum {meetings[0].quorum.status} ({meetings[0].quorum.confirmed}/{meetings[0].quorum.required})
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Clean Assembly Schedule
+                </>
+              )}
+            </div>
+          </SpotlightCard>
 
-        <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Scheduled Assemblies</span>
-            <CalendarIcon className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="text-2xl font-black text-white mt-2 font-mono">{meetings.length} Sessions</div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            {meetings.length > 0 
-              ? `${meetings.filter(m => m.type === 'Board of Directors').length} Board • ${meetings.filter(m => m.type !== 'Board of Directors').length} Review`
-              : 'Zero Pending Assemblies'}
-          </div>
-        </SpotlightCard>
+          <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>Scheduled Assemblies</span>
+              <CalendarIcon className="w-4 h-4 text-cyan-400" />
+            </div>
+            <div className="text-2xl font-black text-white mt-2 font-mono">{meetings.length} Sessions</div>
+            <div className="text-[11px] text-slate-400 mt-1 font-mono">
+              {meetings.length > 0 
+                ? `${meetings.filter(m => m.type === 'Board of Directors').length} Board • ${meetings.filter(m => m.type !== 'Board of Directors').length} Review`
+                : 'Zero Pending Assemblies'}
+            </div>
+          </SpotlightCard>
 
-        <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Calendar Synchronization</span>
-            <Link2 className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-sm font-bold text-emerald-300 mt-2 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Google & Outlook 365 Active
-          </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">director@zynocs.com</div>
-        </SpotlightCard>
+          <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>Calendar Synchronization</span>
+              <Link2 className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-sm font-bold text-emerald-300 mt-2 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Google & Outlook 365 Active
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1 font-mono">director@zynocs.com</div>
+          </SpotlightCard>
 
-        <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Encrypted Video Bridge</span>
-            <Shield className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div className="text-sm font-bold text-white mt-2">Zero-Trust WebRTC</div>
-          <div className="text-[11px] text-cyan-400 mt-1 font-mono">AES-256 GCM Audio/Video</div>
-        </SpotlightCard>
-      </div>
+          <SpotlightCard className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800/80">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>Encrypted Video Bridge</span>
+              <Shield className="w-4 h-4 text-cyan-400" />
+            </div>
+            <div className="text-sm font-bold text-white mt-2">Zero-Trust WebRTC</div>
+            <div className="text-[11px] text-cyan-400 mt-1 font-mono">AES-256 GCM Audio/Video</div>
+          </SpotlightCard>
+        </div>
+      )}
 
       {/* Main Content Areas */}
       {viewMode === 'schedule' && (
@@ -603,66 +612,389 @@ export const MeetingsCalendarApp: React.FC = () => {
         </div>
       )}
 
-      {/* Calendar Month View */}
-      {viewMode === 'calendar' && (
-        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <div className="flex items-center gap-3">
-              <h3 className="text-lg font-black text-white">November 2026 Executive Schedule</h3>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/30">
-                IST (UTC+5:30)
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white border border-slate-700">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white border border-slate-700">
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+      {/* Calendar Month View - Full Calendar with Best View */}
+      {viewMode === 'calendar' && (() => {
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth(); // 0 - 11
+        const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-          {/* 7-day Calendar Grid */}
-          <div className="grid grid-cols-7 gap-2">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-              <div key={day} className="text-center text-xs font-mono font-bold text-slate-400 py-2">
-                {day}
+        // Monday-based index: 0 for Mon, 6 for Sun
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const startDayOffset = (firstDay + 6) % 7;
+        const totalDaysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const prevMonthTotalDays = new Date(currentYear, currentMonth, 0).getDate();
+
+        // 35 or 42 grid cells
+        const totalCells = Math.ceil((startDayOffset + totalDaysInMonth) / 7) * 7;
+
+        const handlePrevMonth = () => {
+          setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
+        };
+        const handleNextMonth = () => {
+          setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
+        };
+        const handleToday = () => {
+          setCurrentDate(new Date(2026, 10, 26));
+          setSelectedCalendarDate('2026-11-28');
+        };
+
+        const monthMeetings = meetings.filter((m) => {
+          const parts = m.date.split('-');
+          return (
+            parts.length === 3 &&
+            parseInt(parts[0], 10) === currentYear &&
+            parseInt(parts[1], 10) === currentMonth + 1
+          );
+        });
+
+        const selectedDateMeetings = meetings.filter((m) => m.date === selectedCalendarDate);
+
+        const formatSelectedDateLabel = (dateStr: string) => {
+          try {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const dt = new Date(y, m - 1, d);
+            return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+          } catch {
+            return dateStr;
+          }
+        };
+
+        return (
+          <div className="space-y-6">
+            
+            {/* Calendar Main Board */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-2xl backdrop-blur-xl space-y-6">
+              
+              {/* Calendar Controls & Navigation Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-800">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-950/70 border border-cyan-500/40 text-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                    <CalendarDays className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2.5">
+                      <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                        {monthName}
+                      </h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-cyan-950/80 text-cyan-300 border border-cyan-500/40">
+                        {monthMeetings.length} Scheduled
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-2 font-mono">
+                      <span>Executive Governance Calendar</span>
+                      <span className="text-slate-600">•</span>
+                      <span className="text-cyan-400">IST (UTC+5:30)</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Navigation Controls */}
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <button
+                    onClick={handleToday}
+                    className="px-3 py-1.5 rounded-xl bg-slate-950 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all cursor-pointer"
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={handlePrevMonth}
+                    className="p-2 rounded-xl bg-slate-950 hover:bg-slate-850 text-slate-300 hover:text-white border border-slate-800 transition-all cursor-pointer"
+                    title="Previous Month"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={handleNextMonth}
+                    className="p-2 rounded-xl bg-slate-950 hover:bg-slate-850 text-slate-300 hover:text-white border border-slate-800 transition-all cursor-pointer"
+                    title="Next Month"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setNewDate(selectedCalendarDate || '2026-11-28');
+                      setShowScheduleModal(true);
+                    }}
+                    className="ml-2 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>Add Meeting</span>
+                  </button>
+                </div>
               </div>
-            ))}
 
-            {/* Days Dynamic Grid */}
-            {Array.from({ length: 30 }).map((_, i) => {
-              const dayNum = i + 1;
-              const dayMeetings = meetings.filter((m) => {
-                const parts = m.date.split('-');
-                return parts.length === 3 && parseInt(parts[2], 10) === dayNum;
-              });
-              const hasMeeting = dayMeetings.length > 0;
-              return (
-                <div
-                  key={i}
-                  className={`min-h-[90px] p-2 rounded-xl border flex flex-col justify-between transition-all ${
-                    hasMeeting
-                      ? 'bg-cyan-950/40 border-cyan-500/50 shadow-md'
-                      : 'bg-slate-950/50 border-slate-800/60 hover:border-slate-700'
-                  }`}
+              {/* Day of Week Headers */}
+              <div className="grid grid-cols-7 gap-2">
+                {[
+                  { label: 'Mon', full: 'Monday' },
+                  { label: 'Tue', full: 'Tuesday' },
+                  { label: 'Wed', full: 'Wednesday' },
+                  { label: 'Thu', full: 'Thursday' },
+                  { label: 'Fri', full: 'Friday' },
+                  { label: 'Sat', full: 'Saturday' },
+                  { label: 'Sun', full: 'Sunday' }
+                ].map(d => (
+                  <div
+                    key={d.label}
+                    className="py-2.5 text-center text-xs font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-950/40 rounded-xl border border-slate-850/60"
+                  >
+                    <span className="hidden sm:inline">{d.full}</span>
+                    <span className="sm:hidden">{d.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Full Month Calendar Grid (Spacious, Interactive Cells) */}
+              <div className="grid grid-cols-7 gap-2">
+                {Array.from({ length: totalCells }).map((_, i) => {
+                  const isPrevMonth = i < startDayOffset;
+                  const isNextMonth = i >= startDayOffset + totalDaysInMonth;
+                  const isCurrentMonth = !isPrevMonth && !isNextMonth;
+
+                  let cellDayNum: number;
+                  let cellDateKey: string = '';
+
+                  if (isPrevMonth) {
+                    cellDayNum = prevMonthTotalDays - (startDayOffset - 1 - i);
+                    const prevMonthNum = currentMonth === 0 ? 12 : currentMonth;
+                    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                    cellDateKey = `${prevYear}-${String(prevMonthNum).padStart(2, '0')}-${String(cellDayNum).padStart(2, '0')}`;
+                  } else if (isNextMonth) {
+                    cellDayNum = i - (startDayOffset + totalDaysInMonth) + 1;
+                    const nextMonthNum = currentMonth === 11 ? 1 : currentMonth + 2;
+                    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+                    cellDateKey = `${nextYear}-${String(nextMonthNum).padStart(2, '0')}-${String(cellDayNum).padStart(2, '0')}`;
+                  } else {
+                    cellDayNum = i - startDayOffset + 1;
+                    cellDateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(cellDayNum).padStart(2, '0')}`;
+                  }
+
+                  const dayMeetings = meetings.filter(m => m.date === cellDateKey);
+                  const isSelected = selectedCalendarDate === cellDateKey;
+                  const isToday = currentYear === 2026 && currentMonth === 10 && cellDayNum === 26 && isCurrentMonth;
+
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => {
+                        setSelectedCalendarDate(cellDateKey);
+                        if (dayMeetings.length > 0) {
+                          setSelectedMeeting(dayMeetings[0]);
+                        }
+                      }}
+                      className={`min-h-[110px] sm:min-h-[125px] p-2.5 rounded-2xl border flex flex-col justify-between transition-all group relative cursor-pointer ${
+                        isSelected
+                          ? 'bg-slate-900 border-cyan-500 shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/50'
+                          : isCurrentMonth
+                          ? dayMeetings.length > 0
+                            ? 'bg-cyan-950/20 border-cyan-500/30 hover:border-cyan-500/60 hover:bg-slate-900/90'
+                            : 'bg-slate-950/50 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/40'
+                          : 'bg-slate-950/20 border-slate-850/40 opacity-40 hover:opacity-75'
+                      }`}
+                    >
+                      {/* Top Header of Cell: Day Number + Today/Selected Badge */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`text-xs font-mono font-bold ${
+                              isSelected
+                                ? 'text-cyan-300'
+                                : isToday
+                                ? 'text-white'
+                                : isCurrentMonth
+                                ? 'text-slate-300'
+                                : 'text-slate-600'
+                            }`}
+                          >
+                            {cellDayNum}
+                          </span>
+                          {isToday && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" title="Today" />
+                          )}
+                        </div>
+
+                        {/* Quick Add on cell hover */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedCalendarDate(cellDateKey);
+                            setNewDate(cellDateKey);
+                            setShowScheduleModal(true);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-opacity"
+                          title="Schedule meeting on this day"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Middle/Bottom: Meeting Pills */}
+                      <div className="space-y-1.5 my-1">
+                        {dayMeetings.slice(0, 2).map((m) => {
+                          const isBoard = m.type === 'Board of Directors';
+                          const isArch = m.type === 'Architecture Review';
+                          const isInvest = m.type === 'Investor Briefing';
+
+                          return (
+                            <div
+                              key={m.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMeeting(m);
+                                setSelectedCalendarDate(cellDateKey);
+                              }}
+                              className={`p-1.5 rounded-lg border text-[10px] font-medium leading-tight truncate transition-transform hover:scale-[1.02] cursor-pointer shadow-sm ${
+                                isBoard
+                                  ? 'bg-cyan-950/90 text-cyan-200 border-cyan-500/40'
+                                  : isArch
+                                  ? 'bg-sky-950/90 text-sky-200 border-sky-500/40'
+                                  : isInvest
+                                  ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/40'
+                                  : 'bg-purple-950/90 text-purple-200 border-purple-500/40'
+                              }`}
+                              title={`${m.time} - ${m.title}`}
+                            >
+                              <div className="font-mono text-[9px] font-bold opacity-90 truncate">
+                                {m.time.split(' ')[0]}
+                              </div>
+                              <div className="truncate font-semibold">{m.title}</div>
+                            </div>
+                          );
+                        })}
+
+                        {dayMeetings.length > 2 && (
+                          <div className="text-[10px] font-mono text-cyan-400 font-bold px-1">
+                            +{dayMeetings.length - 2} more
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bottom status line */}
+                      <div className="text-[9px] font-mono text-slate-500 truncate">
+                        {dayMeetings.length > 0 && (
+                          <span className="text-cyan-400/80 font-bold">
+                            {dayMeetings.length} {dayMeetings.length === 1 ? 'Assembly' : 'Assemblies'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+
+            {/* Selected Date Dossier & Actions Panel */}
+            <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/70 border border-slate-800 shadow-xl backdrop-blur-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-400">
+                    <CalendarIcon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">
+                      Assemblies for {formatSelectedDateLabel(selectedCalendarDate)}
+                    </h4>
+                    <p className="text-xs text-slate-400">
+                      {selectedDateMeetings.length > 0 
+                        ? `${selectedDateMeetings.length} board session(s) scheduled for this date.` 
+                        : 'No board meetings or assemblies scheduled for this date.'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setNewDate(selectedCalendarDate);
+                    setShowScheduleModal(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all cursor-pointer self-start sm:self-auto"
                 >
-                  <span className={`text-xs font-mono font-bold ${hasMeeting ? 'text-cyan-300' : 'text-slate-500'}`}>
-                    {dayNum}
-                  </span>
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Schedule Assembly on this Date</span>
+                </button>
+              </div>
 
-                  {dayMeetings.slice(0, 1).map((m) => (
-                    <div key={m.id} className="p-1.5 rounded-lg bg-cyan-900/60 border border-cyan-500/40 text-[10px] text-cyan-200 font-semibold truncate">
-                      🏢 {m.title}
+              {/* List of Meetings for Selected Date */}
+              {selectedDateMeetings.length === 0 ? (
+                <div className="py-8 px-4 text-center rounded-2xl bg-slate-950/40 border border-dashed border-slate-800/80">
+                  <p className="text-xs text-slate-400">
+                    The executive schedule is clear for this date. Click above to organize a formal board assembly.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedDateMeetings.map((m) => (
+                    <div
+                      key={m.id}
+                      className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-3.5"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-cyan-300">
+                          {m.type}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">
+                          Quorum {m.quorum.status} ({m.quorum.confirmed}/{m.quorum.required})
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 className="text-sm font-bold text-white">{m.title}</h4>
+                        <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 font-mono">
+                          <span className="flex items-center gap-1 text-slate-300">
+                            <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                            {m.time}
+                          </span>
+                          <span>•</span>
+                          <span className="truncate">{m.location}</span>
+                        </div>
+                      </div>
+
+                      {/* Attendee Badges */}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
+                        <div className="flex items-center -space-x-1.5">
+                          {m.attendees.map((att, idx) => (
+                            <div
+                              key={idx}
+                              title={`${att.name} (${att.role})`}
+                              className="w-6 h-6 rounded-full bg-slate-800 border-2 border-slate-950 text-[9px] font-mono font-bold text-slate-300 flex items-center justify-center"
+                            >
+                              {att.avatarInitials}
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={m.videoLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shadow-md shadow-cyan-500/20 transition-all cursor-pointer"
+                          >
+                            <Video className="w-3.5 h-3.5" />
+                            <span>Join Bridge</span>
+                          </a>
+                          <button
+                            onClick={() => {
+                              setSelectedMeeting(m);
+                              setViewMode('schedule');
+                            }}
+                            className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition-all cursor-pointer"
+                          >
+                            Dossier
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
-              );
-            })}
+              )}
+
+            </div>
+
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Quorum Audit View */}
       {viewMode === 'quorum' && (

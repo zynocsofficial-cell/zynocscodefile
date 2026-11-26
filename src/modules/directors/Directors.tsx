@@ -49,6 +49,7 @@ import {
   CalendarDays,
   Settings,
   User,
+  UserCheck,
   Edit3,
   Trash2
 } from 'lucide-react';
@@ -66,6 +67,7 @@ import { TasksApp } from './apps/TasksApp';
 import { AccountsApp } from './apps/AccountsApp';
 import { CodeReposApp } from './apps/CodeReposApp';
 import { EmployeesApp } from './apps/EmployeesApp';
+import { FreelancersApp } from './apps/FreelancersApp';
 import { getRootDomainUrl } from '@/services/authService';
 import { MeetingsCalendarApp } from './apps/MeetingsCalendarApp';
 import { DirectorProfileSettings } from './profile/DirectorProfileSettings';
@@ -95,6 +97,7 @@ export type AppId =
   | 'meetings'
   | 'links' 
   | 'contacts' 
+  | 'freelancers'
   | 'helpdesk' 
   | 'access_control' 
   | 'tasks' 
@@ -122,6 +125,7 @@ export const Directors: React.FC<DirectorsProps> = ({
   // Navigation States: Sidebar Tab + Selected App + Sidebar Collapsed
   const [activeTab, setActiveTab] = useState<'dashboard' | 'apps' | 'profile'>('dashboard');
   const [selectedApp, setSelectedApp] = useState<AppId | null>(null);
+  const [selectedAppsCategory, setSelectedAppsCategory] = useState<'all' | 'enterprise' | 'others'>('all');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -548,6 +552,17 @@ export const Directors: React.FC<DirectorsProps> = ({
       icon: Eye,
       iconColor: 'text-fuchsia-400',
       iconBg: 'bg-fuchsia-950/50 border-fuchsia-500/30 shadow-fuchsia-500/10'
+    },
+    {
+      id: 'freelancers',
+      name: 'Freelancers & Talent Network',
+      category: 'Others',
+      description: 'Vetted freelance engineering talent pool, specialized domain filters, LinkedIn direct connect, rate telemetry, and contract availability.',
+      badge: 'Others',
+      badgeColor: 'bg-cyan-950/60 text-cyan-400 border-cyan-500/30',
+      icon: UserCheck,
+      iconColor: 'text-cyan-400',
+      iconBg: 'bg-cyan-950/50 border-cyan-500/30 shadow-cyan-500/10'
     }
   ];
 
@@ -610,10 +625,16 @@ export const Directors: React.FC<DirectorsProps> = ({
         {/* Fixed Width Inner Wrapper to maintain clean layout during width transitions */}
         <div className="w-64 h-full flex flex-col justify-between shrink-0">
           
-          {/* Sidebar Header: Logo & Boardroom Clearance */}
-          <div className="p-5 border-b border-slate-800/80 space-y-4">
+          {/* Sidebar Header: Logo, Name & Board Member Designation */}
+          <div className="p-5 border-b border-slate-800/80">
             <div className="flex items-center justify-between">
-              <Logo className="h-8 w-auto" />
+              <div className="flex items-center gap-3">
+                <Logo className="h-8 w-auto shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-base font-extrabold text-white tracking-tight leading-none">Zynocs</span>
+                  <span className="text-[11px] text-slate-400 font-medium tracking-wide lowercase mt-1">board member</span>
+                </div>
+              </div>
               
               <div className="flex items-center gap-1.5">
                 {/* Arrow in small circle: Click to hide sidebar */}
@@ -632,13 +653,6 @@ export const Directors: React.FC<DirectorsProps> = ({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase border border-cyan-500/40 bg-cyan-950/40 text-cyan-400 flex items-center gap-1">
-                <Shield className="w-3 h-3" />
-                <span>Directors Console</span>
-              </span>
             </div>
           </div>
 
@@ -713,80 +727,17 @@ export const Directors: React.FC<DirectorsProps> = ({
             </button>
           </div>
 
-          {/* Sub-menu: Direct App Jump Links */}
-          <div className="space-y-1 pt-2 border-t border-slate-800/60">
-            <span className="px-3 text-[10px] font-mono text-slate-500 uppercase tracking-wider block mb-2 font-bold">
-              Apps Suite
-            </span>
-
-            {APPS_LIST.map((app) => (
-              <button
-                key={app.id}
-                onClick={() => {
-                  setActiveTab('apps');
-                  setSelectedApp(app.id);
-                  setMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
-                  activeTab === 'apps' && selectedApp === app.id
-                    ? 'bg-cyan-950/60 text-cyan-300 border border-cyan-500/30 font-bold'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
-                }`}
-              >
-                <app.icon className={`w-3.5 h-3.5 ${activeTab === 'apps' && selectedApp === app.id ? 'text-cyan-400' : 'text-slate-500'}`} />
-                <span className="truncate">{app.name}</span>
-              </button>
-            ))}
-          </div>
-
         </div>
 
-        {/* Sidebar Footer: User Profile & Session Controls */}
-        <div className="p-4 border-t border-slate-800/80 space-y-3 bg-slate-950">
-          <div 
-            onClick={() => {
-              setActiveTab('profile');
-              setSelectedApp(null);
-              setMobileMenuOpen(false);
-            }}
-            className="p-3 rounded-xl bg-slate-900/80 hover:bg-slate-900 border border-slate-800/80 hover:border-cyan-500/40 space-y-1 cursor-pointer transition-all group"
-            title="Open Director Profile & Settings"
+        {/* Sidebar Footer: Single Logout Action */}
+        <div className="p-4 border-t border-slate-800/80 bg-slate-950">
+          <button
+            onClick={onSignOut}
+            className="w-full py-2.5 px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs font-bold border border-red-500/30 hover:border-red-500/50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors truncate block">{user.name}</span>
-              <Settings className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 group-hover:rotate-45 transition-all" />
-            </div>
-            <span className="text-[11px] text-slate-400 font-mono truncate block">{user.email}</span>
-            <span className="text-[10px] text-emerald-400 font-mono block pt-0.5">
-              ● PostgreSQL 18 (Port 8800)
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => {
-                const isLocal = typeof window !== 'undefined' && window.location.hostname.includes('localhost');
-                const isRoot = isLocal ? window.location.hostname === 'localhost' : window.location.hostname.startsWith('zynocs.com');
-                if (!isRoot) {
-                  window.location.href = getRootDomainUrl();
-                } else {
-                  onNavigate(Section.Home);
-                }
-              }}
-              className="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-[11px] font-semibold border border-slate-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <ArrowLeft className="w-3 h-3" />
-              <span>Website</span>
-            </button>
-
-            <button
-              onClick={onSignOut}
-              className="py-2 px-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-[11px] font-bold border border-red-500/30 transition-all flex items-center justify-center gap-1.5"
-            >
-              <LogOut className="w-3 h-3" />
-              <span>Lock</span>
-            </button>
-          </div>
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </button>
         </div>
 
         </div>
@@ -858,96 +809,38 @@ export const Directors: React.FC<DirectorsProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Quick Profile & Settings Button */}
+            {/* Enhanced Executive Profile & Settings Button */}
             <button
               onClick={() => {
                 setActiveTab('profile');
                 setSelectedApp(null);
               }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shadow-md cursor-pointer ${
+              className={`group flex items-center gap-3 px-3.5 py-2 rounded-2xl border transition-all duration-200 shadow-sm cursor-pointer ${
                 activeTab === 'profile'
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
-                  : 'bg-slate-900 hover:bg-slate-850 text-slate-200 border-slate-700/80 hover:border-slate-600'
+                  ? 'bg-cyan-500/15 border-cyan-500/50 text-white shadow-cyan-500/10 shadow-lg ring-1 ring-cyan-500/30'
+                  : 'bg-slate-900/90 hover:bg-slate-800/90 border-slate-800 hover:border-slate-700 text-slate-200'
               }`}
               title="Open Director Profile & Settings"
             >
-              <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-cyan-600 to-indigo-600 text-white font-mono font-bold text-[10px] flex items-center justify-center">
-                KM
+              <div className="relative shrink-0">
+                <div className="w-7 h-7 rounded-xl bg-cyan-500 text-slate-950 font-mono font-black text-xs flex items-center justify-center shadow-md">
+                  {user.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-950 animate-pulse" />
               </div>
-              <span className="hidden sm:inline font-bold">Profile & Settings</span>
-              <Settings className={`w-3.5 h-3.5 ${activeTab === 'profile' ? 'text-cyan-400 rotate-45' : 'text-slate-400'} transition-transform`} />
+
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
+                    Profile & Settings
+                  </span>
+                  <Settings className={`w-3.5 h-3.5 transition-all duration-300 ${activeTab === 'profile' ? 'text-cyan-400 rotate-90' : 'text-slate-400 group-hover:rotate-45 group-hover:text-cyan-400'}`} />
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono leading-none truncate max-w-[140px] mt-0.5">
+                  {user.name}
+                </span>
+              </div>
             </button>
-
-            {/* Perspective Switcher Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setPerspectiveDropdownOpen(!perspectiveDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-slate-700/80 text-xs font-semibold text-slate-200 transition-all shadow-md group cursor-pointer"
-              >
-                <Eye className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                <span className="hidden sm:inline text-slate-400">Perspective:</span>
-                <span className="font-bold text-cyan-300">Board Director</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </button>
-
-              {perspectiveDropdownOpen && (
-                <>
-                  <div
-                    onClick={() => setPerspectiveDropdownOpen(false)}
-                    className="fixed inset-0 z-40"
-                  />
-                  <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-slate-950/95 border border-slate-800 p-2 shadow-2xl z-50 backdrop-blur-2xl space-y-1 animate-fade-in-up">
-                    <div className="px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800/80 flex items-center justify-between">
-                      <span>Switch Position View</span>
-                      <span className="text-cyan-400">8 Personas</span>
-                    </div>
-
-                    <div className="p-2 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-300 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-3.5 h-3.5 text-cyan-400" />
-                        <span className="font-bold">Board Director (Current)</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-cyan-400">Active</span>
-                    </div>
-
-                    <div className="max-h-72 overflow-y-auto space-y-1 pt-1">
-                      {PERSPECTIVES.map((p) => (
-                        <button
-                          key={p.id}
-                          onClick={() => {
-                            setPerspectiveDropdownOpen(false);
-                            setSimulatedRole(p.role);
-                          }}
-                          className="w-full p-2.5 rounded-xl hover:bg-slate-900 text-left transition-all flex items-start gap-2.5 group cursor-pointer"
-                        >
-                          <div className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 group-hover:border-slate-700 shrink-0">
-                            <p.icon className={`w-3.5 h-3.5 ${p.color}`} />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
-                                {p.label}
-                              </span>
-                              <span className="text-[10px] font-mono text-slate-500">
-                                {p.role.subdomain}.zynocs.com
-                              </span>
-                            </div>
-                            <span className="text-[10px] text-slate-400 block truncate mt-0.5">
-                              {p.desc}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-500/20 hidden md:inline-flex">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Live: PostgreSQL 18
-            </span>
           </div>
         </header>
 
@@ -1217,50 +1110,144 @@ export const Directors: React.FC<DirectorsProps> = ({
           {/* ========================================================================= */}
           {/* VIEW B1: APPS CATALOG GRID (When "Apps" is clicked in sidebar) */}
           {/* ========================================================================= */}
-          {activeTab === 'apps' && selectedApp === null && (
-            <div className="space-y-8 animate-fade-in-up">
-              
-              <div className="space-y-1">
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Enterprise Management Applications
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-400">
-                  Select an enterprise application below to open its dedicated cockpit and operational tools.
-                </p>
-              </div>
+          {activeTab === 'apps' && selectedApp === null && (() => {
+            const enterpriseApps = APPS_LIST.filter(a => a.category !== 'Others');
+            const otherApps = APPS_LIST.filter(a => a.category === 'Others');
 
-              {/* Apps Small Icons & Names Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
-                {APPS_LIST.map((app) => (
-                  <SpotlightCard
-                    key={app.id}
-                    onClick={() => setSelectedApp(app.id)}
-                    className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 hover:bg-slate-850/90 transition-all cursor-pointer group flex flex-col items-center text-center justify-between min-h-[140px] space-y-3 shadow-sm hover:shadow-cyan-500/10 hover:shadow-lg"
-                  >
-                    <div className="flex flex-col items-center space-y-2.5 w-full">
-                      {/* Small Icon Box */}
-                      <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${app.iconBg} group-hover:scale-110 transition-transform shadow-md`}>
-                        <app.icon className={`w-5 h-5 ${app.iconColor}`} />
-                      </div>
+            return (
+              <div className="space-y-8 animate-fade-in-up">
+                
+                {/* Header & Category Switcher */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                      Enterprise Management Applications
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-400">
+                      Select an enterprise application below to open its dedicated cockpit and operational tools.
+                    </p>
+                  </div>
 
-                      {/* App Name */}
-                      <div className="w-full">
-                        <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight">
-                          {app.name}
-                        </h4>
-                      </div>
+                  {/* Category Filter Pills */}
+                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-950/80 border border-slate-800 self-start sm:self-auto">
+                    <button
+                      onClick={() => setSelectedAppsCategory('all')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        selectedAppsCategory === 'all'
+                          ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      All ({APPS_LIST.length})
+                    </button>
+                    <button
+                      onClick={() => setSelectedAppsCategory('enterprise')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        selectedAppsCategory === 'enterprise'
+                          ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Enterprise Management ({enterpriseApps.length})
+                    </button>
+                    <button
+                      onClick={() => setSelectedAppsCategory('others')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        selectedAppsCategory === 'others'
+                          ? 'bg-cyan-500 text-slate-950 font-bold shadow-sm shadow-cyan-500/20'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Others ({otherApps.length})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Section 1: Enterprise Management Applications */}
+                {(selectedAppsCategory === 'all' || selectedAppsCategory === 'enterprise') && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                      <Building2 className="w-4 h-4 text-cyan-400" />
+                      <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                        Enterprise Management ({enterpriseApps.length})
+                      </h2>
                     </div>
 
-                    {/* Small Badge / Category Tag */}
-                    <span className="text-[10px] font-mono text-slate-400 group-hover:text-cyan-400/90 block truncate max-w-full">
-                      {app.badge}
-                    </span>
-                  </SpotlightCard>
-                ))}
-              </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
+                      {enterpriseApps.map((app) => (
+                        <SpotlightCard
+                          key={app.id}
+                          onClick={() => setSelectedApp(app.id)}
+                          className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 hover:bg-slate-850/90 transition-all cursor-pointer group flex flex-col items-center text-center justify-between min-h-[140px] space-y-3 shadow-sm hover:shadow-cyan-500/10 hover:shadow-lg"
+                        >
+                          <div className="flex flex-col items-center space-y-2.5 w-full">
+                            {/* Small Icon Box */}
+                            <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${app.iconBg} group-hover:scale-110 transition-transform shadow-md`}>
+                              <app.icon className={`w-5 h-5 ${app.iconColor}`} />
+                            </div>
 
-            </div>
-          )}
+                            {/* App Name */}
+                            <div className="w-full">
+                              <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight">
+                                {app.name}
+                              </h4>
+                            </div>
+                          </div>
+
+                          {/* Small Badge / Category Tag */}
+                          <span className="text-[10px] font-mono text-slate-400 group-hover:text-cyan-400/90 block truncate max-w-full">
+                            {app.badge}
+                          </span>
+                        </SpotlightCard>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Section 2: Others Category (Freelancers) */}
+                {(selectedAppsCategory === 'all' || selectedAppsCategory === 'others') && (
+                  <div className="space-y-4 pt-2">
+                    <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+                      <Sparkles className="w-4 h-4 text-cyan-400" />
+                      <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                        Others ({otherApps.length})
+                      </h2>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
+                      {otherApps.map((app) => (
+                        <SpotlightCard
+                          key={app.id}
+                          onClick={() => setSelectedApp(app.id)}
+                          className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/50 hover:bg-slate-850/90 transition-all cursor-pointer group flex flex-col items-center text-center justify-between min-h-[140px] space-y-3 shadow-sm hover:shadow-cyan-500/10 hover:shadow-lg"
+                        >
+                          <div className="flex flex-col items-center space-y-2.5 w-full">
+                            {/* Small Icon Box */}
+                            <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${app.iconBg} group-hover:scale-110 transition-transform shadow-md`}>
+                              <app.icon className={`w-5 h-5 ${app.iconColor}`} />
+                            </div>
+
+                            {/* App Name */}
+                            <div className="w-full">
+                              <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight">
+                                {app.name}
+                              </h4>
+                            </div>
+                          </div>
+
+                          {/* Small Badge / Category Tag */}
+                          <span className="text-[10px] font-mono text-cyan-400 font-bold block truncate max-w-full">
+                            {app.badge}
+                          </span>
+                        </SpotlightCard>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            );
+          })()}
 
           {/* ========================================================================= */}
           {/* VIEW B2: APP DETAIL VIEW (When an App Card is clicked) */}
@@ -1288,6 +1275,7 @@ export const Directors: React.FC<DirectorsProps> = ({
               {selectedApp === 'links' && <ImportantLinksApp />}
               {selectedApp === 'contacts' && <ContactsApp />}
               {selectedApp === 'employees' && <EmployeesApp />}
+              {selectedApp === 'freelancers' && <FreelancersApp />}
               {selectedApp === 'helpdesk' && <HelpDeskApp />}
               {selectedApp === 'access_control' && <AccessControlApp />}
               {selectedApp === 'tasks' && <TasksApp />}
