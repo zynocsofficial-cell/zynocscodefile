@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "start": "node --experimental-strip-types server/server.ts"
+    "start": "node --experimental-strip-types server/server.ts",
+    "seed": "node scripts/seed-database.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

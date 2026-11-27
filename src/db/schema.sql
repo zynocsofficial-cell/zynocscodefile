@@ -73,18 +73,19 @@ CREATE TABLE IF NOT EXISTS sponsor_campaigns (
 -- INITIAL FOUNDER & SEED DATA
 -- ==============================================================================
 
--- Insert Founders (Real Bcrypt Hash for 'Zynocs@2026!')
 INSERT INTO users (id, email, password_hash, full_name, is_2fa_enabled)
 VALUES 
-    ('11111111-1111-1111-1111-111111111111', 'mohammed@zynocs.com', '$2b$10$B4Dwg37wkjhdc8L4H1ucl.jkZSgF4Klkl5n.VMQchKUcsjG/..Otu', 'Mohammed Khaja Moinuddin', TRUE),
-    ('22222222-2222-2222-2222-222222222222', 'yousuf@zynocs.com', '$2b$10$B4Dwg37wkjhdc8L4H1ucl.jkZSgF4Klkl5n.VMQchKUcsjG/..Otu', 'Yousuf Mohammed Jaleel', TRUE)
-ON CONFLICT (email) DO NOTHING;
+    ('11111111-1111-1111-1111-111111111111', 'mohammedkhaja@zynocs.com', '$2b$10$9XJSAMgLuyIj.iNDJV16S.DOmWWSA0qhZ02IJYUuF7i0/L1P0Jn9q', 'Mohammed Khaja Moinuddin', TRUE)
+ON CONFLICT (email) DO UPDATE 
+SET password_hash = EXCLUDED.password_hash, full_name = EXCLUDED.full_name;
 
--- Assign Director & Board Roles
+-- Assign Full Enterprise Subdomain Permissions
 INSERT INTO user_roles (user_id, subdomain, role, department, status)
 VALUES 
-    ('11111111-1111-1111-1111-111111111111', 'directors', 'CHAIRPERSON', 'Executive Board', 'ACTIVE'),
+    ('11111111-1111-1111-1111-111111111111', 'directors', 'CHAIRPERSON_FOUNDER', 'Executive Board', 'ACTIVE'),
     ('11111111-1111-1111-1111-111111111111', 'work', 'DIRECTOR', 'Executive Board', 'ACTIVE'),
-    ('22222222-2222-2222-2222-222222222222', 'directors', 'CEO', 'Executive Board', 'ACTIVE'),
-    ('22222222-2222-2222-2222-222222222222', 'work', 'CEO', 'Executive Board', 'ACTIVE')
-ON CONFLICT DO NOTHING;
+    ('11111111-1111-1111-1111-111111111111', 'main', 'SUPER_ADMIN', 'Central Identity', 'ACTIVE'),
+    ('11111111-1111-1111-1111-111111111111', 'client', 'CLIENT_ENTERPRISE_EXECUTIVE', 'Executive Board', 'ACTIVE'),
+    ('11111111-1111-1111-1111-111111111111', 'sponsors', 'SPONSOR_DIRECTOR', 'Executive Board', 'ACTIVE'),
+    ('11111111-1111-1111-1111-111111111111', 'ads', 'ADOPS_OPERATOR', 'Executive Board', 'ACTIVE')
+ON CONFLICT (user_id, subdomain, role) DO UPDATE SET status = 'ACTIVE';

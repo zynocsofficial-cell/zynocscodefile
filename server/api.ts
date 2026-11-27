@@ -137,7 +137,7 @@ export const handleApiRequest = async (req: IncomingMessage, res: ServerResponse
     }
   }
 
-  // 3. User Login (Authenticating against live PostgreSQL 18)
+  // 3. User Login (Authenticating against live PostgreSQL 18 with bcrypt)
   if (pathname === '/api/auth/login' && req.method === 'POST') {
     try {
       const body = await parseBody(req);
@@ -150,31 +150,33 @@ export const handleApiRequest = async (req: IncomingMessage, res: ServerResponse
         return true;
       }
 
-      // Query User
+      const normalizedEmail = (email || '').toLowerCase().trim();
+
+      // Query User from PostgreSQL database
       const userRes = await pool.query(
         'SELECT id, email, password_hash, full_name FROM users WHERE email = $1',
-        [email.toLowerCase().trim()]
+        [normalizedEmail]
       );
 
       if (userRes.rows.length === 0) {
         res.statusCode = 401;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: 'No account found with this email. Please check your credentials or redeem appointment key.' }));
+        res.end(JSON.stringify({ error: 'Authentication failed: No registered account found with this email.' }));
         return true;
       }
 
       const user = userRes.rows[0];
 
-      // Compare password
+      // Compare password with bcrypt hash stored in PostgreSQL
       const match = await bcrypt.compare(password, user.password_hash);
       if (!match) {
         res.statusCode = 401;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ error: 'Incorrect password. Please try again.' }));
+        res.end(JSON.stringify({ error: 'Authentication failed: Incorrect password. Please try again.' }));
         return true;
       }
 
-      // Check Role Permissions for subdomain
+      // Check Role Permissions for subdomain in PostgreSQL
       const roleRes = await pool.query(
         'SELECT role, department, status FROM user_roles WHERE user_id = $1 AND subdomain = $2 AND status = $3',
         [user.id, subdomain, 'ACTIVE']
@@ -188,7 +190,7 @@ export const handleApiRequest = async (req: IncomingMessage, res: ServerResponse
         return true;
       }
 
-      const activeRole = roleRes.rows[0]?.role || 'DIRECTOR';
+      const activeRole = roleRes.rows[0]?.role || (subdomain === 'directors' ? 'DIRECTOR' : 'STAFF');
 
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({
@@ -200,7 +202,7 @@ export const handleApiRequest = async (req: IncomingMessage, res: ServerResponse
           email: user.email,
           role: activeRole,
           subdomain: `${subdomain}.zynocs.com`,
-          department: roleRes.rows[0]?.department || 'Executive Board'
+          department: roleRes.rows[0]?.department || (subdomain === 'directors' ? 'Executive Board' : 'General')
         }
       }));
       return true;
