@@ -47,7 +47,7 @@ const pool = new Pool(
     }
 );
 
-// Initial Single Enterprise User
+// Initial Enterprise Users
 const ACCOUNTS = [
   {
     email: 'mohammedkhaja@zynocs.com',
@@ -61,11 +61,25 @@ const ACCOUNTS = [
       { subdomain: 'sponsors', role: 'SPONSOR_DIRECTOR', department: 'Executive Board' },
       { subdomain: 'ads', role: 'ADOPS_OPERATOR', department: 'Executive Board' }
     ]
+  },
+  {
+    email: 'yousufmohammed@zynocs.com',
+    fullName: 'Yousuf Mohammed Jaleel',
+    password: '651433',
+    roles: [
+      { subdomain: 'directors', role: 'FOUNDER_CEO', department: 'Executive Board' },
+      { subdomain: 'work', role: 'DIRECTOR', department: 'Executive Board' },
+      { subdomain: 'main', role: 'SUPER_ADMIN', department: 'Central Identity' },
+      { subdomain: 'client', role: 'CLIENT_ENTERPRISE_EXECUTIVE', department: 'Executive Board' },
+      { subdomain: 'sponsors', role: 'SPONSOR_DIRECTOR', department: 'Executive Board' },
+      { subdomain: 'ads', role: 'ADOPS_OPERATOR', department: 'Executive Board' }
+    ]
   }
 ];
 
 async function seed() {
-  console.log('⚡ Connecting to PostgreSQL at localhost:8800 (zynocs_enterprise)...');
+  const targetHost = process.env.DATABASE_URL ? 'Cloud PostgreSQL / Supabase' : 'localhost:8800 (zynocs_enterprise)';
+  console.log(`⚡ Connecting to PostgreSQL at ${targetHost}...`);
 
   // 1. Ensure core tables exist
   await pool.query(`
@@ -138,7 +152,7 @@ async function seed() {
     }
   }
 
-  console.log('\n🔒 SUCCESS: mohammedkhaja@zynocs.com created and secured in PostgreSQL database!');
+  console.log('\n🔒 SUCCESS: mohammedkhaja@zynocs.com and yousufmohammed@zynocs.com created and secured in PostgreSQL database!');
   await pool.end();
   process.exit(0);
 }

@@ -41,8 +41,6 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [selectedService, setSelectedService] = useState('Web Architecture');
-  const [selectedBudget, setSelectedBudget] = useState('$50K – $150K');
-  const [selectedTimeline, setSelectedTimeline] = useState('1 – 3 Months');
   const [message, setMessage] = useState('');
   const [ndaRequested, setNdaRequested] = useState(true);
   
@@ -60,21 +58,6 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
     { label: 'AI & Machine Learning', icon: Cpu },
     { label: 'Cybersecurity', icon: Shield },
     { label: 'Data Engineering', icon: Database },
-  ];
-
-  const budgetTiers = [
-    '< $25K',
-    '$25K – $50K',
-    '$50K – $150K',
-    '$150K+',
-    'Audit & Advisory'
-  ];
-
-  const timelines = [
-    'Immediate (< 1 mo)',
-    '1 – 3 Months',
-    '3 – 6 Months',
-    'Planning / Flexible'
   ];
 
   const handleCopy = (text: string, type: 'email' | 'phone') => {
@@ -109,7 +92,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
   const faqs = [
     {
       q: 'How fast can our team speak directly with a Principal Architect?',
-      a: 'All enterprise inquiries are triaged by senior software architects, not commission-based salespeople. You will receive an initial technical assessment and direct calendar invite within 4 business hours.'
+      a: 'All enterprise inquiries are triaged by senior software architects, not commission-based salespeople. You will receive an initial technical assessment and direct calendar invite in less than 12 hours.'
     },
     {
       q: 'Will you execute a Mutual Non-Disclosure Agreement (NDA) before discovery?',
@@ -153,7 +136,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
 
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
             Connect directly with senior systems architects and engineering leads. 
-            Zero sales gatekeepers, guaranteed response within 4 hours, and complete technical confidentiality.
+            Zero sales gatekeepers, guaranteed response in less than 12 hours, and complete technical confidentiality.
           </p>
         </div>
 
@@ -178,16 +161,21 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                       <Mail className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Executive Enquiries</span>
-                      <a href="mailto:contact@zynocs.com" className="text-sm sm:text-base font-bold text-white hover:text-brand-300 transition-colors font-mono">
-                        contact@zynocs.com
-                      </a>
+                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Executive Enquiries</span>
+                      <div className="flex flex-col gap-0.5">
+                        <a href="mailto:Contact@zynocs.com" className="text-sm sm:text-base font-bold text-white hover:text-brand-300 transition-colors font-mono">
+                          Contact@zynocs.com
+                        </a>
+                        <a href="mailto:Sales@zynocs.com" className="text-sm sm:text-base font-bold text-white hover:text-brand-300 transition-colors font-mono">
+                          Sales@zynocs.com
+                        </a>
+                      </div>
                     </div>
                   </div>
                   <button
-                    onClick={() => handleCopy('contact@zynocs.com', 'email')}
-                    title="Copy Email"
-                    className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
+                    onClick={() => handleCopy('Contact@zynocs.com, Sales@zynocs.com', 'email')}
+                    title="Copy Emails"
+                    className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-all shrink-0"
                   >
                     {copiedEmail ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   </button>
@@ -202,17 +190,21 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                       <Phone className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Global Hotline</span>
-                      <a href="tel:+18889966273" className="text-sm sm:text-base font-bold text-white hover:text-accent-300 transition-colors font-mono">
-                        +1 (888) 996-6273
-                      </a>
-                      <span className="text-[11px] text-slate-500 block">Toll-Free USA & International</span>
+                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Global Hotline</span>
+                      <div className="flex flex-col gap-0.5">
+                        <a href="tel:+916301987627" className="text-sm sm:text-base font-bold text-white hover:text-accent-300 transition-colors font-mono">
+                          +91-6301987627
+                        </a>
+                        <a href="tel:+919989283869" className="text-sm sm:text-base font-bold text-white hover:text-accent-300 transition-colors font-mono">
+                          +91-9989283869
+                        </a>
+                      </div>
                     </div>
                   </div>
                   <button
-                    onClick={() => handleCopy('+18889966273', 'phone')}
-                    title="Copy Phone Number"
-                    className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
+                    onClick={() => handleCopy('+91-6301987627, +91-9989283869', 'phone')}
+                    title="Copy Phone Numbers"
+                    className="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-all shrink-0"
                   >
                     {copiedPhone ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                   </button>
@@ -227,8 +219,8 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                   </div>
                   <div>
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Engineering Headquarters</span>
-                    <p className="text-sm font-semibold text-white">101 Innovation Blvd, Suite 400</p>
-                    <p className="text-xs text-slate-400">Palo Alto, Silicon Valley, CA 94301</p>
+                    <p className="text-sm font-semibold text-white">Crystal Town Rd, Vyasa Puri, Chandrayangutta</p>
+                    <p className="text-xs text-slate-400">Hyderabad, Telangana 500005</p>
                   </div>
                 </div>
               </div>
@@ -237,7 +229,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
               <div className="pt-2 border-t border-slate-800/80 grid grid-cols-2 gap-3 text-xs text-slate-400">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-brand-400 shrink-0" />
-                  <span>&lt; 4hr Response SLA</span>
+                  <span>&lt; 12hr Response SLA</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -340,12 +332,8 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                       <span className="text-brand-300 font-semibold">{selectedService}</span>
                     </div>
                     <div className="flex justify-between text-slate-400">
-                      <span>Budget Tier:</span>
-                      <span className="text-slate-200 font-semibold">{selectedBudget}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-400">
                       <span>Estimated Architect Reply:</span>
-                      <span className="text-emerald-400 font-semibold">&lt; 4 Hours</span>
+                      <span className="text-emerald-400 font-semibold">&lt; 12 Hours</span>
                     </div>
                     {ndaRequested && (
                       <div className="flex justify-between text-slate-400 pt-2 border-t border-slate-800/80">
@@ -413,56 +401,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
                     </div>
                   </div>
 
-                  {/* 2. Budget Tier & Target Timeline */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Budget */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
-                        2. Target Budget Scope
-                      </label>
-                      <div className="flex flex-wrap gap-1.5">
-                        {budgetTiers.map((tier) => (
-                          <button
-                            type="button"
-                            key={tier}
-                            onClick={() => setSelectedBudget(tier)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                              selectedBudget === tier
-                                ? 'bg-accent-500/20 border-accent-400 text-accent-300'
-                                : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
-                            }`}
-                          >
-                            {tier}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Timeline */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
-                        3. Target Launch Timeline
-                      </label>
-                      <div className="flex flex-wrap gap-1.5">
-                        {timelines.map((time) => (
-                          <button
-                            type="button"
-                            key={time}
-                            onClick={() => setSelectedTimeline(time)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                              selectedTimeline === time
-                                ? 'bg-purple-500/20 border-purple-400 text-purple-300'
-                                : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200'
-                            }`}
-                          >
-                            {time}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. Client Credentials */}
+                  {/* 2. Client Credentials */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
                     <div>
                       <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
@@ -584,7 +523,7 @@ export const Contact: React.FC<ContactProps> = ({ onNavigate }) => {
               <div className="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center mb-5">
                 <Clock className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">Architect Triage (&lt; 4 Hours)</h3>
+              <h3 className="text-lg font-bold text-white mb-2">Architect Triage (&lt; 12 Hours)</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
                 A Principal Engineer reviews your tech stack and requirements. We execute an NDA if requested and prepare a targeted technical agenda.
               </p>

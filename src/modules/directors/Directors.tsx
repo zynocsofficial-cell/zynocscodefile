@@ -75,6 +75,7 @@ import { MeetingsCalendarApp } from './apps/MeetingsCalendarApp';
 import { DirectorProfileSettings } from './profile/DirectorProfileSettings';
 import { RolesPreviewApp, SimulatedRoleConfig } from './apps/RolesPreviewApp';
 import { RoleDashboard } from '../auth/RoleDashboard';
+import { ExecutiveRevenueCockpit } from './dashboard/ExecutiveRevenueCockpit';
 
 interface DirectorUser {
   id: string;
@@ -768,6 +769,18 @@ export const Directors: React.FC<DirectorsProps> = ({
               <Menu className="w-4 h-4" />
             </button>
 
+            {/* Top Bar "Back to Apps" Button */}
+            {selectedApp !== null && (
+              <button
+                onClick={() => setSelectedApp(null)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 hover:border-slate-700 transition-all group cursor-pointer shadow-sm"
+                title="Back to All Apps"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-cyan-400 group-hover:-translate-x-0.5 transition-transform" />
+                <span>Back to Apps</span>
+              </button>
+            )}
+
             {/* Breadcrumb Navigation */}
             <div className="flex items-center gap-2 text-xs font-mono">
               <span className="text-slate-500">Directors</span>
@@ -790,6 +803,14 @@ export const Directors: React.FC<DirectorsProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Live Telemetry Status Pill for Dashboard */}
+            {selectedApp === 'dashboard' && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/70 border border-slate-800 text-[11px] font-mono text-slate-400">
+                <span>Live Executive Telemetry</span>
+                <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+              </div>
+            )}
+
             {/* Enhanced Executive Profile & Settings Button */}
             <button
               onClick={() => setSelectedApp('profile')}
@@ -826,273 +847,16 @@ export const Directors: React.FC<DirectorsProps> = ({
         <div className="p-6 sm:p-8 lg:p-10 space-y-8 flex-1">
           
           {/* ========================================================================= */}
-          {/* VIEW A: EXECUTIVE DASHBOARD & TELEMETRY (Dedicated App) */}
+          {/* VIEW A: EXECUTIVE REVENUE & PIPELINE COCKPIT (Primary Dashboard App) */}
           {/* ========================================================================= */}
           {selectedApp === 'dashboard' && (
-            <div className="space-y-8 animate-fade-in-up">
-              
-              {/* Back to All Apps Navigation Bar */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <button
-                  onClick={() => setSelectedApp(null)}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all group cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-                  <span>Back to All Apps</span>
-                </button>
-              </div>
-
-              {/* Dashboard Title & Welcome Greeting */}
-              <div className="space-y-1">
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Welcome back, {user.name}
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-400">
-                  Executive Boardroom Governance • Subdomain: <span className="font-mono text-cyan-300">directors.zynocs.com</span>
-                </p>
-              </div>
-
-              {/* Executive KPI Grid */}
-              <div className="space-y-3">
-                <span className="text-xs font-mono uppercase text-slate-400 tracking-wider font-bold block">
-                  Executive Performance & Capital Telemetry
-                </span>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {boardKpis.map((kpi, idx) => (
-                    <SpotlightCard
-                      key={idx}
-                      spotlightColor="rgba(6, 182, 212, 0.15)"
-                      className="p-5 sm:p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-400 font-semibold">{kpi.label}</span>
-                        <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-black text-white font-mono">{kpi.value}</h3>
-                        <span className="text-[11px] font-mono text-emerald-400 font-semibold">{kpi.change}</span>
-                      </div>
-                    </SpotlightCard>
-                  ))}
-                </div>
-              </div>
-
-              {/* Two-Column Governance Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                {/* Left Column (7 cols): Active Board Resolutions & Voting */}
-                <div className="lg:col-span-7 space-y-6">
-                  <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-6">
-                    
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-4 gap-4 flex-wrap">
-                      <div>
-                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                          <Vote className="w-5 h-5 text-cyan-400" />
-                          Board Resolutions & Governance Votes
-                        </h3>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          Formal matters submitted for executive board approval.
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-slate-500 hidden sm:inline">
-                          {boardResolutions.length} Active
-                        </span>
-                        <button
-                          onClick={() => setIsAddResolutionOpen(true)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-md shadow-cyan-500/20"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          <span>Propose Resolution</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {boardResolutions.length === 0 ? (
-                      <div className="p-8 text-center rounded-2xl bg-slate-950/60 border border-dashed border-slate-800 space-y-3">
-                        <Vote className="w-8 h-8 text-slate-600 mx-auto" />
-                        <h4 className="text-sm font-bold text-slate-300">Board Governance Panel is 100% Clean</h4>
-                        <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                          No pending dummy resolutions remain. Click &quot;+ Propose Resolution&quot; to submit a formal corporate resolution for voting.
-                        </p>
-                        <button
-                          onClick={() => setIsAddResolutionOpen(true)}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          <span>Propose First Resolution</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {boardResolutions.map((res) => {
-                          const currentVote = votedResolutions[res.id];
-                          return (
-                            <div 
-                              key={res.id}
-                              className="p-5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4 hover:border-slate-700 transition-all"
-                            >
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                <div>
-                                  <span className="text-xs font-mono text-slate-500 block mb-0.5">Sponsor: {res.sponsor}</span>
-                                  <h4 className="text-sm font-bold text-white">{res.title}</h4>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 self-start sm:self-auto shrink-0">
-                                    {res.status}
-                                  </span>
-                                  <button
-                                    onClick={() => handleDeleteResolution(res.id)}
-                                    className="p-1 rounded-lg text-slate-500 hover:text-red-400 hover:bg-slate-900 transition-colors"
-                                    title="Delete resolution"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </div>
-
-                              <p className="text-xs text-slate-400 leading-relaxed">
-                                {res.summary}
-                              </p>
-
-                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
-                                <span className="text-xs font-mono text-slate-400">
-                                  Your Vote: {currentVote ? (
-                                    <strong className={currentVote === 'Approved' ? 'text-emerald-400' : 'text-red-400'}>
-                                      {currentVote} (Cast)
-                                    </strong>
-                                  ) : (
-                                    <span className="text-slate-500">Pending Cast</span>
-                                  )}
-                                </span>
-
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={() => handleVote(res.id, 'Approved')}
-                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                                      currentVote === 'Approved'
-                                        ? 'bg-emerald-500 text-slate-950 font-bold'
-                                        : 'bg-slate-900 hover:bg-emerald-950/50 text-slate-300 hover:text-emerald-300 border border-slate-800 hover:border-emerald-500/40'
-                                    }`}
-                                  >
-                                    Approve
-                                  </button>
-                                  <button
-                                    onClick={() => handleVote(res.id, 'Dissented')}
-                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                                      currentVote === 'Dissented'
-                                        ? 'bg-red-500 text-white font-bold'
-                                        : 'bg-slate-900 hover:bg-red-950/50 text-slate-300 hover:text-red-300 border border-slate-800 hover:border-red-500/40'
-                                    }`}
-                                  >
-                                    Dissent
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                  </div>
-                </div>
-
-                {/* Right Column (5 cols): Temporary Invite Key & Board Roster */}
-                <div className="lg:col-span-5 space-y-6">
-                  
-                  {/* Temporary Director Key Generator Card */}
-                  <div className="p-6 rounded-3xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl space-y-5">
-                    <div className="space-y-1">
-                      <span className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold flex items-center gap-1.5">
-                        <KeyRound className="w-3.5 h-3.5" />
-                        Invite New Board Director
-                      </span>
-                      <h4 className="text-base font-bold text-white">
-                        Generate Temporary Invite Key
-                      </h4>
-                      <p className="text-xs text-slate-400 leading-relaxed">
-                        Directors create time-limited invite keys to appoint trusted partners. Zero HR intervention.
-                      </p>
-                    </div>
-
-                    <form onSubmit={handleGenerateKey} className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-300 mb-1">
-                          Invited Director Corporate Email
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={inviteEmail}
-                          onChange={(e) => setInviteEmail(e.target.value)}
-                          placeholder="newdirector@zynocs.com"
-                          className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 font-mono"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isGenerating}
-                        className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>{isGenerating ? 'Generating Key...' : 'Generate 24h Temporary Key'}</span>
-                      </button>
-                    </form>
-
-                    {/* Generated Key Card */}
-                    {generatedKey && (
-                      <div className="p-3.5 rounded-2xl bg-cyan-950/40 border border-cyan-500/40 space-y-2 animate-fade-in-up">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-cyan-300 font-bold">Temporary Invite Key:</span>
-                          <span className="text-[10px] text-slate-400 font-mono">Expires in 24 hrs</span>
-                        </div>
-                        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800">
-                          <span className="font-mono text-xs text-white font-bold tracking-wider">{generatedKey}</span>
-                          <button
-                            onClick={handleCopyKey}
-                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all"
-                          >
-                            {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
-                        <p className="text-[10px] text-slate-400 leading-relaxed">
-                          Provide this key to the invited director. They can redeem it on the <strong>Appointment</strong> tab of <code>directors.zynocs.com</code>.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Board Roster Card */}
-                  <div className="p-6 rounded-3xl bg-slate-900/50 border border-slate-800/80 space-y-4">
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-                      Active Board Roster
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
-                        <div className="space-y-0.5">
-                          <div className="text-xs font-bold text-white">Mohammed Khaja Moinuddin</div>
-                          <div className="text-[11px] text-cyan-400 font-mono">Founder & Chairperson</div>
-                        </div>
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Active Online" />
-                      </div>
-
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
-                        <div className="space-y-0.5">
-                          <div className="text-xs font-bold text-white">Yousuf Mohammed Jaleel</div>
-                          <div className="text-[11px] text-brand-400 font-mono">Founder & Chief Executive Officer</div>
-                        </div>
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Active Online" />
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
-
+            <div className="animate-fade-in-up">
+              {/* High-Performance Executive Dashboard Cockpit */}
+              <ExecutiveRevenueCockpit
+                user={user}
+                onNavigateApp={(appId) => setSelectedApp(appId as AppId)}
+                onBackToApps={() => setSelectedApp(null)}
+              />
             </div>
           )}
 
@@ -1243,18 +1007,6 @@ export const Directors: React.FC<DirectorsProps> = ({
           {/* ========================================================================= */}
           {selectedApp !== null && selectedApp !== 'dashboard' && selectedApp !== 'profile' && (
             <div className="space-y-6 animate-fade-in-up">
-              
-              {/* Back to Apps Navigation Bar */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <button
-                  onClick={() => setSelectedApp(null)}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all group cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-                  <span>Back to All Apps</span>
-                </button>
-              </div>
-
               {/* Render the Selected App */}
               {selectedApp === 'logs' && <LogsApp />}
               {selectedApp === 'roles_preview' && <RolesPreviewApp onLaunchRole={(config) => setSimulatedRole(config)} />}
@@ -1280,16 +1032,6 @@ export const Directors: React.FC<DirectorsProps> = ({
           {/* ========================================================================= */}
           {selectedApp === 'profile' && (
             <div className="space-y-6 animate-fade-in-up">
-              {/* Back to Apps Navigation Bar */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <button
-                  onClick={() => setSelectedApp(null)}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white text-xs font-semibold border border-slate-800 transition-all group cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-                  <span>Back to All Apps</span>
-                </button>
-              </div>
               <DirectorProfileSettings user={user} onSignOut={onSignOut} />
             </div>
           )}
